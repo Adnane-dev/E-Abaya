@@ -1,20 +1,21 @@
 "use client";
 
-import {
-  ShoppingBag,
-  Heart,
-  Search,
-  Menu,
-  User,
-  ShoppingCart,
-} from "lucide-react";
+import { Heart, Search, Menu, User, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileMenu } from "./MobileMenu";
 import { SearchBar } from "./SearchBar";
+import { Home } from "lucide-react";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cartItems, setCartItems] = useState(0); // Track the number of items in the cart
+
+  // Example to simulate adding items to the cart (this could be updated based on actual cart state)
+  useEffect(() => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCartItems(cart.length); // Assuming each item in the cart is represented as an object
+  }, []);
 
   return (
     <nav className="border-b bg-white shadow-sm">
@@ -35,8 +36,9 @@ export function Navbar() {
             <NavLink href="/">
               {/* Logo and name */}
               <div className="flex items-center space-x-2">
-                <ShoppingCart className="h-6 w-6 text-gray-700" />
-                <span className="text-gray-900 font-bold text-lg">
+                <Home className="h-6 w-6 text-gray-700" />
+
+                <span className="hidden lg:block text-gray-900 font-bold text-lg">
                   Islamic Style-Girls
                 </span>
               </div>
@@ -58,7 +60,14 @@ export function Navbar() {
               <Heart className="h-6 w-6" />
             </IconButton>
             <IconButton label="Cart">
-              <ShoppingBag className="h-6 w-6" />
+              <div className="relative">
+                <ShoppingCart className="h-6 w-6 text-gray-700" />
+                {cartItems > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                    {cartItems}
+                  </span>
+                )}
+              </div>
             </IconButton>
 
             {/* User Authentication Links */}

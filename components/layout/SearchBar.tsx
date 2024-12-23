@@ -1,4 +1,3 @@
-// SearchBar.tsx
 import { useState } from "react";
 import { featuredProducts } from "@/public/featured-products"; // Assurez-vous que le chemin est correct
 import { SearchInput } from "./SearchInput"; // Importation du composant SearchInput
@@ -31,8 +30,14 @@ export function SearchBar() {
       {/* Composant SearchInput */}
       <SearchInput value={searchQuery} onChange={handleSearch} />
 
-      {/* Composant ProductList pour afficher les produits filtrés */}
-      {/* <ProductList products={filteredProducts} /> */}
+      {/* Affichage des produits filtrés */}
+      {/*  <div className="mt-4 w-full">
+        {filteredProducts.length > 0 ? (
+          <ProductList products={filteredProducts} />
+        ) : (
+          <p className="text-center text-gray-500">Aucun produit trouvé</p>
+        )}
+      </div> */}
     </div>
   );
 }

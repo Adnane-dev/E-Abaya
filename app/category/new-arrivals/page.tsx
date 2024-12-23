@@ -48,7 +48,7 @@ export default function NewArrivalsPage() {
                   )}
                 </div>
                 <Link
-                  href={`/product/${product.id}`}
+                  href={`/products/${product.id}`}
                   className="text-blue-600 hover:text-blue-800 mt-4 inline-block"
                 >
                   Voir plus

@@ -5,30 +5,34 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ isOpen }: MobileMenuProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="md:hidden">
-      <div className="px-2 pt-2 pb-3 space-y-1">
-        <Link
-          href="/category/abayas"
-          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-        >
-          Abayas
-        </Link>
-        <Link
-          href="/category/hijabs"
-          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-        >
-          Hijabs
-        </Link>
-        <Link
-          href="/category/kaftans"
-          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-        >
-          Kaftans
-        </Link>
+    <div
+      className={`${
+        isOpen ? "block" : "hidden"
+      } fixed inset-0 bg-gray-800 bg-opacity-50 z-50 md:hidden`}
+    >
+      <div className="absolute right-0 top-0 w-64 h-full bg-white shadow-lg">
+        <div className="flex flex-col items-center space-y-6 py-10">
+          <NavLink href="/category/abayas">Abayas</NavLink>
+          <NavLink href="/category/hijabs">Hijabs</NavLink>
+          <NavLink href="/category/kaftans">Kaftans</NavLink>
+        </div>
       </div>
     </div>
+  );
+}
+
+// Composant NavLink
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link href={href} className="text-gray-700 hover:text-primary text-lg">
+      {children}
+    </Link>
   );
 }

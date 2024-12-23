@@ -3,19 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { ProductDialog } from "./ProductDialog";
-
-// Définir le type pour le produit
-interface Product {
-  id: string | number;
-  name: string;
-  category: string;
-  price: number;
-  image: string | File;
-  brand?: string;
-  colors?: string[];
-  sizes?: string[];
-}
-
+import { Product } from "@/types/product"; // Importation du type Product
 // Définir le type pour les filtres actifs
 interface ActiveFilters {
   categories: string[];
@@ -81,21 +69,25 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
     };
   }, [products]);
 
+  // Gérer l'ouverture du dialogue pour voir les détails du produit
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setIsDialogOpen(true);
   };
 
+  // Fermer le dialogue
   const handleCloseDialog = () => {
     setSelectedProduct(null);
     setIsDialogOpen(false);
   };
 
+  // Ajouter le produit au panier
   const handleAddToCart = (product: Product, quantity: number) => {
     console.log("Added to cart:", product, quantity);
     handleCloseDialog();
   };
 
+  // Fonction pour afficher l'image
   const renderImage = useCallback(
     (image: string | File, productId: string) => {
       if (typeof image === "string") {
@@ -117,7 +109,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
           src={imageUrl}
           alt="Product"
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 300px"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 30px"
           className="group-hover:scale-105 transition-transform duration-300 object-cover"
         />
       ) : null;

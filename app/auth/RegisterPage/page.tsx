@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -76,6 +77,18 @@ export default function RegisterPage() {
           Retour à l&apos;accueil
         </Link>
         <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Créer un compte</h2>
+
+        <GoogleButton />
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-card text-muted-foreground">ou avec votre e-mail</span>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-foreground">

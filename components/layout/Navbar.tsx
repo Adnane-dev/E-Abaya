@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Heart,
   Search,
@@ -14,6 +15,19 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCart, onCartUpdate } from "@/lib/cart";
+import { createClient } from "@/lib/supabase";
+
+type AccountRole = "admin" | "vendor" | "customer";
+interface AccountState {
+  email: string;
+  role: AccountRole;
+}
+
+const ROLE_LABELS: Record<AccountRole, string> = {
+  admin: "Admin",
+  vendor: "Vendeur",
+  customer: "Compte",
+};
 
 // Define TypeScript interfaces
 interface Subcategory {
@@ -28,12 +42,15 @@ interface Category {
 }
 
 export const Navbar: React.FC = () => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [account, setAccount] = useState<AccountState | null>(null);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +68,48 @@ export const Navbar: React.FC = () => {
     refreshCartCount();
     return onCartUpdate(refreshCartCount);
   }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function loadAccount() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        setAccount(null);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+
+      if (profile?.is_admin) {
+        setAccount({ email: userData.user.email ?? "", role: "admin" });
+        return;
+      }
+
+      const { data: shop } = await supabase
+        .from("shops")
+        .select("id")
+        .eq("owner_id", userData.user.id)
+        .maybeSingle();
+
+      setAccount({ email: userData.user.email ?? "", role: shop ? "vendor" : "customer" });
+    }
+
+    loadAccount();
+    const { data: subscription } = supabase.auth.onAuthStateChange(() => loadAccount());
+    return () => subscription.subscription.unsubscribe();
+  }, []);
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setIsAccountMenuOpen(false);
+    router.push("/");
+  }
 
   const renderCategories = (categories: Category[]) => {
     return categories.map((category) => (
@@ -193,18 +252,80 @@ export const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Auth Buttons */}
-            <div className="hidden sm:flex items-center space-x-4">
-              <Link href="/auth/login">
-                <button className="text-foreground/70 hover:text-accent transition-colors" aria-label="Se connecter">
-                  <User className="h-5 w-5" />
-                </button>
-              </Link>
-              <Link href="/auth/RegisterPage">
-                <button className="px-6 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors text-sm font-medium shadow-md hover:shadow-lg">
-                  S&apos;inscrire
-                </button>
-              </Link>
+            {/* Auth / Account */}
+            <div className="hidden sm:flex items-center">
+              {account ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsAccountMenuOpen((open) => !open)}
+                    className="flex items-center gap-2 text-foreground/80 hover:text-accent transition-colors"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="text-sm font-medium">{ROLE_LABELS[account.role]}</span>
+                  </button>
+                  <AnimatePresence>
+                    {isAccountMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-56 bg-popover rounded-lg shadow-xl border border-border py-2 z-50"
+                      >
+                        <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border truncate">
+                          {account.email}
+                        </div>
+                        {account.role === "admin" && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                          >
+                            Tableau de bord admin
+                          </Link>
+                        )}
+                        {account.role === "vendor" && (
+                          <Link
+                            href="/vendeur"
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                          >
+                            Mon espace vendeur
+                          </Link>
+                        )}
+                        {account.role === "customer" && (
+                          <Link
+                            href="/vendeur"
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                          >
+                            Devenir vendeur
+                          </Link>
+                        )}
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
+                        >
+                          Se déconnecter
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <Link href="/auth/login">
+                    <button className="text-foreground/70 hover:text-accent transition-colors" aria-label="Se connecter">
+                      <User className="h-5 w-5" />
+                    </button>
+                  </Link>
+                  <Link href="/auth/RegisterPage">
+                    <button className="px-6 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors text-sm font-medium shadow-md hover:shadow-lg">
+                      S&apos;inscrire
+                    </button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
@@ -252,13 +373,42 @@ export const Navbar: React.FC = () => {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center space-x-4 pt-3 border-t border-border sm:hidden">
-                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-foreground/80 py-2">
-                  Se connecter
-                </Link>
-                <Link href="/auth/RegisterPage" onClick={() => setIsMenuOpen(false)} className="text-accent py-2 font-medium">
-                  S&apos;inscrire
-                </Link>
+              <div className="pt-3 border-t border-border sm:hidden">
+                {account ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground truncate">
+                      {ROLE_LABELS[account.role]} — {account.email}
+                    </p>
+                    {account.role === "admin" && (
+                      <Link href="/admin" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
+                        Tableau de bord admin
+                      </Link>
+                    )}
+                    {(account.role === "vendor" || account.role === "customer") && (
+                      <Link href="/vendeur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
+                        {account.role === "vendor" ? "Mon espace vendeur" : "Devenir vendeur"}
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="text-destructive py-1"
+                    >
+                      Se déconnecter
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-4">
+                    <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-foreground/80 py-2">
+                      Se connecter
+                    </Link>
+                    <Link href="/auth/RegisterPage" onClick={() => setIsMenuOpen(false)} className="text-accent py-2 font-medium">
+                      S&apos;inscrire
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

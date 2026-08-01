@@ -25,7 +25,7 @@ export default function LoginPage() {
     setIsSubmitting(false);
 
     if (error) {
-      toast.error("Connexion impossible : e-mail ou mot de passe incorrect.");
+      toast.error("Connexion impossible : " + error.message);
       return;
     }
 

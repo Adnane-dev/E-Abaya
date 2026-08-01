@@ -8,9 +8,12 @@ create table if not exists shops (
   slug text not null unique,
   description text default '',
   logo_url text,
+  id_document_url text,
   is_approved boolean not null default false,
   created_at timestamptz default now()
 );
+
+alter table shops add column if not exists id_document_url text;
 
 create table if not exists products (
   id bigint generated always as identity primary key,
@@ -191,6 +194,31 @@ create policy "Admins and vendors can upload product images" on storage.objects
     and (
       public.is_admin(auth.uid())
       or exists (select 1 from shops where owner_id = auth.uid())
+    )
+  );
+
+-- Private bucket for vendor identity-verification documents — NOT
+-- public, unlike product-images. Files must be uploaded under a path
+-- starting with the uploader's own user id (e.g. "<uid>/id-card.jpg")
+-- so the policies below can scope access per-owner.
+insert into storage.buckets (id, name, public)
+values ('vendor-documents', 'vendor-documents', false)
+on conflict (id) do nothing;
+
+drop policy if exists "Vendors can upload own identity document" on storage.objects;
+create policy "Vendors can upload own identity document" on storage.objects
+  for insert with check (
+    bucket_id = 'vendor-documents'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Owners and admins can view identity documents" on storage.objects;
+create policy "Owners and admins can view identity documents" on storage.objects
+  for select using (
+    bucket_id = 'vendor-documents'
+    and (
+      (storage.foldername(name))[1] = auth.uid()::text
+      or public.is_admin(auth.uid())
     )
   );
 

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 export default function LoginPage() {
@@ -20,22 +21,44 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    setIsSubmitting(false);
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
+      setIsSubmitting(false);
       toast.error("Connexion impossible : " + error.message);
       return;
     }
 
     toast.success("Connexion réussie !");
-    router.push("/admin");
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", signInData.user.id)
+      .maybeSingle();
+
+    if (profile?.is_admin) {
+      router.push("/admin");
+      return;
+    }
+
+    const { data: shop } = await supabase
+      .from("shops")
+      .select("id")
+      .eq("owner_id", signInData.user.id)
+      .maybeSingle();
+
+    setIsSubmitting(false);
+    router.push(shop ? "/vendeur" : "/");
   }
 
   return (
     <div className="min-h-screen bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Link href="/" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-accent transition-colors text-sm">
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l&apos;accueil
+        </Link>
         <h2 className="mt-6 text-center font-serif text-3xl font-bold text-foreground">
           Connexion
         </h2>
@@ -82,6 +105,13 @@ export default function LoginPage() {
               {isSubmitting ? "Connexion…" : "Se connecter"}
             </Button>
           </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Pas encore de compte ?{" "}
+            <Link href="/auth/RegisterPage" className="text-accent hover:text-accent/80 font-medium">
+              Créer un compte
+            </Link>
+          </p>
         </Card>
       </div>
     </div>

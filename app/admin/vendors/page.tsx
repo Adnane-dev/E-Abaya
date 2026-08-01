@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 interface Shop {
@@ -10,6 +11,7 @@ interface Shop {
   slug: string;
   description: string;
   is_approved: boolean;
+  id_document_url: string | null;
   created_at: string;
 }
 
@@ -44,6 +46,15 @@ export default function AdminVendorsPage() {
     loadShops();
   }
 
+  async function viewDocument(path: string) {
+    const { data, error } = await supabase.storage.from("vendor-documents").createSignedUrl(path, 60);
+    if (error || !data) {
+      toast.error("Impossible d'ouvrir le document : " + (error?.message ?? "inconnu"));
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  }
+
   return (
     <div className="max-w-5xl mx-auto">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-6">Boutiques vendeurs</h1>
@@ -54,6 +65,7 @@ export default function AdminVendorsPage() {
             <tr>
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Boutique</th>
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Statut</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Identité</th>
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Créée le</th>
               <th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Action</th>
             </tr>
@@ -61,14 +73,14 @@ export default function AdminVendorsPage() {
           <tbody className="divide-y divide-border text-sm text-foreground">
             {isLoading && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   Chargement…
                 </td>
               </tr>
             )}
             {!isLoading && shops.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   Aucune boutique vendeur pour le moment.
                 </td>
               </tr>
@@ -87,6 +99,19 @@ export default function AdminVendorsPage() {
                   >
                     {shop.is_approved ? "Approuvée" : "En attente"}
                   </span>
+                </td>
+                <td className="px-6 py-4">
+                  {shop.id_document_url ? (
+                    <button
+                      onClick={() => viewDocument(shop.id_document_url!)}
+                      className="flex items-center gap-1 text-accent hover:text-accent/80"
+                    >
+                      <FileText className="h-4 w-4" />
+                      Voir
+                    </button>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">Aucun document</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-muted-foreground">
                   {new Date(shop.created_at).toLocaleDateString("fr-FR")}

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 export default function RegisterPage() {
@@ -69,6 +71,10 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-md border border-border">
+        <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors text-sm mb-4">
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l&apos;accueil
+        </Link>
         <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Créer un compte</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -158,6 +164,13 @@ export default function RegisterPage() {
             {isSubmitting ? "Création…" : "S'inscrire"}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Déjà un compte ?{" "}
+          <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
+            Se connecter
+          </Link>
+        </p>
       </div>
     </div>
   );

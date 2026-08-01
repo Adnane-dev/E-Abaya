@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { createClient } from "@/lib/supabase";
 
@@ -18,14 +19,17 @@ export default function AdminLayout({
 
     async function checkAccess() {
       const supabase = createClient();
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
-      if (!userData.user) {
+      if (!active) return;
+
+      if (userError || !userData.user) {
+        toast.error("Session introuvable : " + (userError?.message ?? "non connecté") + " — reconnexion nécessaire.");
         router.replace("/auth/login");
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("is_admin")
         .eq("id", userData.user.id)
@@ -33,7 +37,14 @@ export default function AdminLayout({
 
       if (!active) return;
 
+      if (profileError) {
+        toast.error("Erreur de lecture du profil : " + profileError.message);
+        router.replace("/");
+        return;
+      }
+
       if (!profile?.is_admin) {
+        toast.error("Ce compte (" + userData.user.email + ") n'a pas les droits administrateur.");
         router.replace("/");
         return;
       }

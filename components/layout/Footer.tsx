@@ -34,7 +34,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Shop Links */}
           <div>
             <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Boutique</h3>
@@ -116,6 +116,23 @@ export function Footer() {
               <li>
                 <Link href="/careers" className="hover:text-accent transition-colors">
                   Carrières
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Vendors */}
+          <div>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Vendeurs</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/vendeur" className="hover:text-accent transition-colors font-medium">
+                  Devenir vendeur
+                </Link>
+              </li>
+              <li>
+                <Link href="/vendeur/produits" className="hover:text-accent transition-colors">
+                  Gérer mes produits
                 </Link>
               </li>
             </ul>

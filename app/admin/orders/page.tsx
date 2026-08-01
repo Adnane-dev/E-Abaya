@@ -11,6 +11,11 @@ interface Order {
   items: { name: string; quantity: number }[];
   total: number;
   status: string;
+  customer_name: string;
+  customer_phone: string;
+  delivery_address: string;
+  payment_method: string;
+  payment_reference: string | null;
   created_at: string;
 }
 
@@ -22,6 +27,11 @@ const STATUS_LABELS: Record<string, string> = {
   shipped: "Expédiée",
   delivered: "Livrée",
   cancelled: "Annulée",
+};
+
+const PAYMENT_LABELS: Record<string, string> = {
+  cod: "À la livraison",
+  mobile_money: "Mobile Money",
 };
 
 export default function AdminOrdersPage() {
@@ -47,7 +57,11 @@ export default function AdminOrdersPage() {
   }, [sortDirection]);
 
   const filteredOrders = orders.filter((order) =>
-    searchTerm ? order.status.toLowerCase().includes(searchTerm.toLowerCase()) : true
+    searchTerm
+      ? order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer_phone.includes(searchTerm)
+      : true
   );
 
   async function handleStatusChange(orderId: number, status: string) {
@@ -69,10 +83,10 @@ export default function AdminOrdersPage() {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Rechercher par statut..."
+          placeholder="Rechercher par client, téléphone ou statut..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 w-full sm:w-80 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
+          className="px-4 py-2 w-full sm:w-96 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
         />
       </div>
 
@@ -91,32 +105,54 @@ export default function AdminOrdersPage() {
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Client
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Livraison
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Paiement
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Montant total
+                  Total
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                     Chargement…
                   </td>
                 </tr>
               )}
               {!isLoading && filteredOrders.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                     Aucune commande pour le moment.
                   </td>
                 </tr>
               )}
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-muted/50">
+                <tr key={order.id} className="hover:bg-muted/50 align-top">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-foreground">
+                    <div className="font-medium">{order.customer_name || "—"}</div>
+                    <div className="text-muted-foreground text-xs">{order.customer_phone}</div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground max-w-xs">
+                    {order.delivery_address}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-foreground">
+                    <div>{PAYMENT_LABELS[order.payment_method] ?? order.payment_method}</div>
+                    {order.payment_reference && (
+                      <div className="text-muted-foreground text-xs">Réf : {order.payment_reference}</div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
@@ -132,7 +168,7 @@ export default function AdminOrdersPage() {
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                    {order.total.toLocaleString("fr-FR")} CFA
+                    {Number(order.total).toLocaleString("fr-FR")} CFA
                   </td>
                 </tr>
               ))}

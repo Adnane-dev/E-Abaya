@@ -143,24 +143,34 @@ export function Footer() {
             <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Suivez-nous</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  Instagram
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-accent transition-colors">
+                <a href="https://facebook.com/people/Niger40/61588825723446" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
                   Facebook
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="#" className="hover:text-accent transition-colors">
-                  Pinterest
-                </Link>
+                <a href="https://instagram.com/niger4.0" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                  Instagram
+                </a>
               </li>
               <li>
-                <Link href="#" className="hover:text-accent transition-colors">
+                <a href="https://tiktok.com/@niger40officiel" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
                   TikTok
-                </Link>
+                </a>
+              </li>
+              <li>
+                <a href="https://x.com/Niger038017" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                  X
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/company/niger-4-0/" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/@Niger-4.0Officiel" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                  YouTube
+                </a>
               </li>
             </ul>
           </div>

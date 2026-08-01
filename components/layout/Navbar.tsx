@@ -243,14 +243,14 @@ export const Navbar: React.FC = () => {
             </button>
 
             {/* Cart */}
-            <button className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Panier">
+            <Link href="/checkout" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Panier">
               <ShoppingCart className="h-5 w-5" />
               {cartItems > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-accent-foreground bg-accent rounded-full">
                   {cartItems}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* Auth / Account */}
             <div className="hidden sm:flex items-center">

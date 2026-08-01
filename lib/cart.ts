@@ -35,6 +35,36 @@ export function addToCart(product: Product, quantity = 1) {
   window.dispatchEvent(new Event(CART_EVENT));
 }
 
+export function updateQuantity(id: number, quantity: number) {
+  const cart = getCart();
+  const item = cart.find((i) => i.id === id);
+  if (!item) return;
+
+  if (quantity <= 0) {
+    removeFromCart(id);
+    return;
+  }
+
+  item.quantity = quantity;
+  localStorage.setItem("cart", JSON.stringify(cart));
+  window.dispatchEvent(new Event(CART_EVENT));
+}
+
+export function removeFromCart(id: number) {
+  const cart = getCart().filter((item) => item.id !== id);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  window.dispatchEvent(new Event(CART_EVENT));
+}
+
+export function clearCart() {
+  localStorage.setItem("cart", "[]");
+  window.dispatchEvent(new Event(CART_EVENT));
+}
+
+export function getCartTotal(cart: CartItem[]): number {
+  return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
 export function onCartUpdate(callback: () => void) {
   window.addEventListener(CART_EVENT, callback);
   window.addEventListener("storage", callback);

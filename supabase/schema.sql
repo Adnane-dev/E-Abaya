@@ -50,8 +50,19 @@ create table if not exists orders (
   items jsonb not null,
   total numeric not null,
   status text not null default 'pending',
+  customer_name text not null default '',
+  customer_phone text not null default '',
+  delivery_address text not null default '',
+  payment_method text not null default 'cod',
+  payment_reference text,
   created_at timestamptz default now()
 );
+
+alter table orders add column if not exists customer_name text not null default '';
+alter table orders add column if not exists customer_phone text not null default '';
+alter table orders add column if not exists delivery_address text not null default '';
+alter table orders add column if not exists payment_method text not null default 'cod';
+alter table orders add column if not exists payment_reference text;
 
 -- Every new signup automatically gets a profile row (is_admin defaults
 -- to false — nobody is admin until manually promoted, see bottom of

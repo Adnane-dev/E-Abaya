@@ -66,13 +66,23 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Admin check used by RLS policies below. Marked SECURITY DEFINER so it
+-- runs with the function owner's privileges (bypassing RLS) instead of
+-- the querying user's — calling it from a policy ON profiles avoids the
+-- "infinite recursion detected in policy for relation profiles" error
+-- you get if a policy on `profiles` runs a plain subquery on `profiles`.
+create or replace function public.is_admin(user_id uuid)
+returns boolean as $$
+  select exists (select 1 from public.profiles where id = user_id and is_admin = true);
+$$ language sql security definer set search_path = public stable;
+
 -- Prevents a vendor from self-approving their own shop by editing it —
 -- silently reverts is_approved unless the actor is an admin.
 create or replace function public.prevent_shop_self_approval()
 returns trigger as $$
 begin
   if (new.is_approved is distinct from old.is_approved) then
-    if not exists (select 1 from profiles where id = auth.uid() and is_admin = true) then
+    if not public.is_admin(auth.uid()) then
       new.is_approved := old.is_approved;
     end if;
   end if;
@@ -110,9 +120,7 @@ create policy "Owners can update own shop" on shops
 
 drop policy if exists "Admins can manage all shops" on shops;
 create policy "Admins can manage all shops" on shops
-  for all using (
-    exists (select 1 from profiles where id = auth.uid() and is_admin = true)
-  );
+  for all using (public.is_admin(auth.uid()));
 
 -- Products: publicly visible if not tied to a vendor shop (admin's own
 -- catalog), or if the vendor shop is approved.
@@ -126,9 +134,7 @@ create policy "Products are publicly readable" on products
 -- Admins manage every product (own catalog + oversight of all vendors).
 drop policy if exists "Admins can manage products" on products;
 create policy "Admins can manage products" on products
-  for all using (
-    exists (select 1 from profiles where id = auth.uid() and is_admin = true)
-  );
+  for all using (public.is_admin(auth.uid()));
 
 -- Vendors manage only the products belonging to their own shop.
 drop policy if exists "Vendors can manage own shop products" on products;
@@ -146,9 +152,7 @@ create policy "Users can view own profile" on profiles
   for select using (auth.uid() = id);
 drop policy if exists "Admins can view all profiles" on profiles;
 create policy "Admins can view all profiles" on profiles
-  for select using (
-    exists (select 1 from profiles where id = auth.uid() and is_admin = true)
-  );
+  for select using (public.is_admin(auth.uid()));
 drop policy if exists "Users can update own profile" on profiles;
 create policy "Users can update own profile" on profiles
   for update using (auth.uid() = id);
@@ -160,14 +164,10 @@ create policy "Users can view own orders" on orders
   for select using (auth.uid() = user_id);
 drop policy if exists "Admins can view all orders" on orders;
 create policy "Admins can view all orders" on orders
-  for select using (
-    exists (select 1 from profiles where id = auth.uid() and is_admin = true)
-  );
+  for select using (public.is_admin(auth.uid()));
 drop policy if exists "Admins can update orders" on orders;
 create policy "Admins can update orders" on orders
-  for update using (
-    exists (select 1 from profiles where id = auth.uid() and is_admin = true)
-  );
+  for update using (public.is_admin(auth.uid()));
 drop policy if exists "Users can create own orders" on orders;
 create policy "Users can create own orders" on orders
   for insert with check (auth.uid() = user_id);
@@ -189,7 +189,7 @@ create policy "Admins and vendors can upload product images" on storage.objects
   for insert with check (
     bucket_id = 'product-images'
     and (
-      exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+      public.is_admin(auth.uid())
       or exists (select 1 from shops where owner_id = auth.uid())
     )
   );

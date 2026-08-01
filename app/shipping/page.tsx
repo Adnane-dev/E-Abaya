@@ -1,17 +1,22 @@
-// app/shipping/page.tsx
-import React from "react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
-const ShippingPage = () => {
+export default function ShippingPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900">Shipping Information</h1>
-      <p className="mt-4 text-gray-600">
-        Here you ll find all the information regarding shipping policies, rates,
-        and delivery times.
-      </p>
-      {/* Add additional content such as shipping rates, methods, and FAQ */}
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <h1 className="font-serif text-3xl font-bold text-foreground">Livraison</h1>
+        <p className="mt-4 text-muted-foreground">
+          Vous trouverez ici les informations sur nos délais et modalités de livraison.
+        </p>
+        <ul className="list-disc pl-6 mt-6 space-y-2 text-muted-foreground">
+          <li>Livraison à domicile disponible au Niger.</li>
+          <li>Délai de préparation habituel : 1 à 3 jours ouvrés.</li>
+          <li>Le suivi de commande est confirmé par téléphone ou WhatsApp après validation.</li>
+        </ul>
+      </div>
+      <Footer />
     </div>
   );
-};
-
-export default ShippingPage;
+}

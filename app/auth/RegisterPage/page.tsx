@@ -1,8 +1,12 @@
-"use client"; // Ajoutez ceci en haut du fichier pour activer le mode Client
+"use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -10,176 +14,151 @@ export default function RegisterPage() {
     confirmPassword: "",
     address: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [errors, setErrors] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    address: "",
-  });
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const validateForm = () => {
-    const newErrors = {
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      address: "",
-    };
+    const newErrors: Record<string, string> = {};
 
-    // Validation des champs
-    if (!formData.fullName) newErrors.fullName = "Full Name is required";
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Email is invalid";
-    if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.fullName) newErrors.fullName = "Le nom complet est requis";
+    if (!formData.email) newErrors.email = "L'e-mail est requis";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "E-mail invalide";
+    if (!formData.password) newErrors.password = "Le mot de passe est requis";
     else if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters long";
+      newErrors.password = "Le mot de passe doit contenir au moins 6 caractères";
     if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    if (!formData.address) newErrors.address = "Address is required";
+      newErrors.confirmPassword = "Les mots de passe ne correspondent pas";
 
     setErrors(newErrors);
-    return Object.values(newErrors).every((error) => !error); // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    // Ajouter la logique d'inscription ici (API, validation, etc.)
-    console.log("Form data submitted:", formData);
+
+    setIsSubmitting(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (data.user) {
+      await supabase
+        .from("profiles")
+        .update({ full_name: formData.fullName, address: formData.address })
+        .eq("id", data.user.id);
+    }
+
+    toast.success("Compte créé ! Vous pouvez maintenant vous connecter.");
+    setIsSubmitting(false);
+    router.push("/auth/login");
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white shadow-lg rounded-md">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Sign Up</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Full Name */}
-        <div>
-          <label
-            htmlFor="fullName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-          {errors.fullName && (
-            <p className="text-sm text-red-600">{errors.fullName}</p>
-          )}
-        </div>
+    <div className="min-h-screen bg-secondary flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-md border border-border">
+        <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Créer un compte</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
+              Nom complet
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+          </div>
 
-        {/* Email */}
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-          {errors.email && (
-            <p className="text-sm text-red-600">{errors.email}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              E-mail
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+          </div>
 
-        {/* Password */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-          {errors.password && (
-            <p className="text-sm text-red-600">{errors.password}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+            {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+          </div>
 
-        {/* Confirm Password */}
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-          {errors.confirmPassword && (
-            <p className="text-sm text-red-600">{errors.confirmPassword}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
+              Confirmer le mot de passe
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+            )}
+          </div>
 
-        {/* Address */}
-        <div>
-          <label
-            htmlFor="address"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Delivery Address
-          </label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-          {errors.address && (
-            <p className="text-sm text-red-600">{errors.address}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium text-foreground">
+              Adresse de livraison
+            </label>
+            <textarea
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full py-2 px-4 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          Sign Up
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-60"
+          >
+            {isSubmitting ? "Création…" : "S'inscrire"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

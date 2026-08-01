@@ -1,67 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters } from "@/components/products/ProductFilters";
-import { ProductSort } from "@/components/products/ProductSort";
+import { ProductSort, SortOption } from "@/components/products/ProductSort";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SearchBar } from "@/components/layout/SearchBar";
-import { featuredProducts } from "@/public/featured-products"; // Import des produits locaux
-
-// Définition des types pour les filtres actifs
-export interface ActiveFilters {
-  categories: string[];
-  brands: string[];
-  colors: string[];
-  sizes: string[];
-  priceRange: [number, number];
-}
+import { createClient } from "@/lib/supabase";
+import { ActiveFilters, Product } from "@/types/product";
 
 export default function ProductsPage() {
-  // État local pour les filtres actifs
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     categories: [],
     brands: [],
     colors: [],
     sizes: [],
-    priceRange: [0, 1000],
+    priceRange: [0, 100000],
   });
 
+  useEffect(() => {
+    async function loadProducts() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("products")
+        .select("*, shops(name, slug)")
+        .order("created_at", { ascending: false });
+      setProducts((data as Product[]) ?? []);
+      setIsLoading(false);
+    }
+    loadProducts();
+  }, []);
+
+  const sortedProducts = useMemo(() => {
+    const sorted = [...products];
+    if (sortOption === "price-low") sorted.sort((a, b) => a.price - b.price);
+    if (sortOption === "price-high") sorted.sort((a, b) => b.price - a.price);
+    return sorted;
+  }, [products, sortOption]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Barre de navigation */}
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Barre de recherche */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
         <div className="mb-6">
           <SearchBar />
         </div>
 
-        {/* Contenu principal : Filtres et produits */}
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Section des filtres */}
           <aside className="w-full md:w-64 flex-shrink-0">
-            <ProductFilters
-              filters={activeFilters}
-              onChange={setActiveFilters}
-            />
+            <ProductFilters products={products} filters={activeFilters} onChange={setActiveFilters} />
           </aside>
 
-          {/* Section principale : Liste des produits */}
           <main className="flex-1">
             <div className="mb-6 flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
-              <ProductSort />
+              <h1 className="font-serif text-2xl font-bold text-foreground">Tous les produits</h1>
+              <ProductSort value={sortOption} onChange={setSortOption} />
             </div>
-            {/* Grille des produits avec les filtres appliqués */}
-            <ProductGrid products={featuredProducts} filters={activeFilters} />
+            {isLoading ? (
+              <p className="text-center text-muted-foreground py-12">Chargement…</p>
+            ) : (
+              <ProductGrid products={sortedProducts} filters={activeFilters} />
+            )}
           </main>
         </div>
       </div>
 
-      {/* Pied de page */}
       <Footer />
     </div>
   );

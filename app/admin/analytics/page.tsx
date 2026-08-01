@@ -1,30 +1,51 @@
-// ChartComponent.js
 "use client";
-// Analytics.js
+
+import { useEffect, useState } from "react";
 import { ChartComponent } from "./chartcomponent";
+import { createClient } from "@/lib/supabase";
 
-const Analytics = () => {
+export default function Analytics() {
+  const [customerCount, setCustomerCount] = useState<number | null>(null);
+  const [orderCount, setOrderCount] = useState<number | null>(null);
+  const [totalRevenue, setTotalRevenue] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function loadStats() {
+      const supabase = createClient();
+      const [{ count: customers }, { data: orders }] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("orders").select("total"),
+      ]);
+      setCustomerCount(customers ?? 0);
+      setOrderCount(orders?.length ?? 0);
+      setTotalRevenue((orders ?? []).reduce((sum, o) => sum + Number(o.total), 0));
+    }
+    loadStats();
+  }, []);
+
   return (
-    <div className="container mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-        Admin - Analytics
-      </h1>
+    <div className="max-w-5xl mx-auto">
+      <h1 className="font-serif text-2xl font-bold text-foreground mb-6">Statistiques</h1>
 
-      <div>
-        <h2 className="text-xl font-medium text-gray-700 mb-4">
-          Statistiques Globales
-        </h2>
-        <p className="text-lg">Nombre total de clients : 1200</p>
-        <p className="text-lg">Revenu total : $50000</p>
-        <p className="text-lg">Nombre total de commandes : 800</p>
-
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-gray-700 mb-4">Graphiques</h3>
-          <ChartComponent />
+      <div className="bg-card border border-border rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-medium text-foreground mb-4">Vue d&apos;ensemble</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <p className="text-foreground">
+            Clients inscrits : <span className="font-semibold">{customerCount ?? "…"}</span>
+          </p>
+          <p className="text-foreground">
+            Revenu total :{" "}
+            <span className="font-semibold">
+              {totalRevenue === null ? "…" : `${totalRevenue.toLocaleString("fr-FR")} CFA`}
+            </span>
+          </p>
+          <p className="text-foreground">
+            Commandes : <span className="font-semibold">{orderCount ?? "…"}</span>
+          </p>
         </div>
+
+        <ChartComponent />
       </div>
     </div>
   );
-};
-
-export default Analytics;
+}

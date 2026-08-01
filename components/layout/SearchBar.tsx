@@ -1,43 +1,51 @@
-import { useState } from "react";
-import { featuredProducts } from "@/public/featured-products"; // Assurez-vous que le chemin est correct
-import { SearchInput } from "./SearchInput"; // Importation du composant SearchInput
-import { ProductList } from "./ProductList"; // Importation du composant ProductList
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase";
+import { Product } from "@/types/product";
+import { SearchInput } from "./SearchInput";
+import { ProductList } from "./ProductList";
 
 export function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(featuredProducts);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      const supabase = createClient();
+      const { data } = await supabase.from("products").select("*");
+      setAllProducts((data as Product[]) ?? []);
+    }
+    loadProducts();
+  }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
 
     if (query.trim() === "") {
-      // Si la recherche est vide, réinitialiser les produits
-      setFilteredProducts(featuredProducts);
+      setFilteredProducts([]);
     } else {
-      // Filtrer les produits selon les critères de nom ou de description
-      const filtered = featuredProducts.filter(
-        (product) =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase())
+      setFilteredProducts(
+        allProducts.filter(
+          (product) =>
+            product.name.toLowerCase().includes(query.toLowerCase()) ||
+            product.description.toLowerCase().includes(query.toLowerCase())
+        )
       );
-      setFilteredProducts(filtered);
     }
   };
 
   return (
-    <div className="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-center">
-      {/* Composant SearchInput */}
+    <div className="flex-1 flex flex-col items-center px-2 lg:ml-6">
       <SearchInput value={searchQuery} onChange={handleSearch} />
 
-      {/* Affichage des produits filtrés */}
-      {/*  <div className="mt-4 w-full">
-        {filteredProducts.length > 0 ? (
+      {searchQuery.trim() !== "" && (
+        <div className="mt-3 w-full max-w-lg rounded-lg border border-border bg-card shadow-sm p-2">
           <ProductList products={filteredProducts} />
-        ) : (
-          <p className="text-center text-gray-500">Aucun produit trouvé</p>
-        )}
-      </div> */}
+        </div>
+      )}
     </div>
   );
 }

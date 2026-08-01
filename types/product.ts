@@ -10,7 +10,18 @@ export interface Product {
   colors: string[];
   material: string;
   brand: string;
-  inStock: boolean;
+  in_stock: boolean;
+  is_new?: boolean;
+  shop_id?: number | null;
+  shops?: { name: string; slug: string } | null;
 }
 
 export type ProductWithFile = Product; // No changes needed here unless you extend it
+
+export interface ActiveFilters {
+  categories: string[];
+  brands: string[];
+  colors: string[];
+  sizes: string[];
+  priceRange: [number, number];
+}

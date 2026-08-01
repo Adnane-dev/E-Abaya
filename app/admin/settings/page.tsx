@@ -1,142 +1,102 @@
-"use client"; // Mark this component as a Client Component
+"use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase";
 
-// Exemple de données par défaut pour les paramètres
-const defaultSettings = {
-  theme: "light",
-  notifications: true,
-  language: "en",
-};
-
-const Settings = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    defaultValues: defaultSettings,
-  });
+export default function SettingsPage() {
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const onSubmit = async (data: any) => {
-    setIsSaving(true);
-    try {
-      // Envoi des données vers une API (ici une simulation)
-      const response = await fetch("/api/settings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+  useEffect(() => {
+    async function loadProfile() {
+      const supabase = createClient();
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
 
-      if (response.ok) {
-        toast.success("Settings saved successfully!");
-      } else {
-        toast.error("Failed to save settings.");
-      }
-    } catch (error) {
-      toast.error("Error saving settings.");
-    } finally {
-      setIsSaving(false);
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+
+      setFullName(data?.full_name ?? "");
+      setPhone(data?.phone ?? "");
+      setIsLoading(false);
     }
-  };
+    loadProfile();
+  }, []);
 
-  const handleReset = () => {
-    reset(defaultSettings);
-    toast.info("Settings have been reset to default.");
-  };
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setIsSaving(true);
+
+    const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      setIsSaving(false);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: fullName, phone })
+      .eq("id", userData.user.id);
+
+    setIsSaving(false);
+
+    if (error) {
+      toast.error("Erreur lors de l'enregistrement : " + error.message);
+      return;
+    }
+    toast.success("Profil mis à jour.");
+  }
 
   return (
-    <div className="container mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-        Admin - Settings
-      </h1>
+    <div className="max-w-xl mx-auto">
+      <h1 className="font-serif text-2xl font-bold text-foreground mb-6">Paramètres du compte</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div>
-          <h2 className="text-xl font-medium text-gray-700">Appearance</h2>
-          <div className="mt-2">
-            <label
-              htmlFor="theme"
-              className="block text-sm font-semibold text-gray-600"
-            >
-              Theme
+      {isLoading ? (
+        <p className="text-muted-foreground">Chargement…</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-6 shadow-sm">
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
+              Nom complet
             </label>
-            <select
-              id="theme"
-              {...register("theme")}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-medium text-gray-700">Notifications</h2>
-          <div className="mt-2 flex items-center">
             <input
-              type="checkbox"
-              id="notifications"
-              {...register("notifications")}
-              className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="mt-1 w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            <label
-              htmlFor="notifications"
-              className="ml-2 text-sm font-semibold text-gray-600"
-            >
-              Enable Notifications
-            </label>
           </div>
-        </div>
 
-        <div>
-          <h2 className="text-xl font-medium text-gray-700">Language</h2>
-          <div className="mt-2">
-            <label
-              htmlFor="language"
-              className="block text-sm font-semibold text-gray-600"
-            >
-              Language
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-foreground">
+              Téléphone
             </label>
-            <select
-              id="language"
-              {...register("language")}
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="en">English</option>
-              <option value="fr">Français</option>
-              <option value="es">Español</option>
-            </select>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+            />
           </div>
-        </div>
 
-        <div className="flex space-x-4">
           <button
             type="submit"
             disabled={isSaving}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none disabled:bg-indigo-300"
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90 disabled:opacity-60"
           >
-            {isSaving ? "Saving..." : "Save Settings"}
+            {isSaving ? "Enregistrement…" : "Enregistrer"}
           </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="px-6 py-3 bg-gray-500 text-white rounded-lg shadow-md hover:bg-gray-600 focus:outline-none"
-          >
-            Reset to Default
-          </button>
-        </div>
-      </form>
+        </form>
+      )}
     </div>
   );
-};
-
-export default Settings;
+}

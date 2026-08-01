@@ -1,27 +1,25 @@
-// app/sizing/page.tsx
-import React from "react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
-const SizingPage = () => {
+export default function SizingPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900">Sizing Guide</h1>
-      <p className="mt-4 text-gray-600">
-        Find the perfect fit for our products with our sizing guide.
-      </p>
-      <div className="mt-8">
-        <h2 className="text-xl font-medium text-gray-800">How to Measure</h2>
-        <p className="mt-2 text-gray-600">
-          Here s how to take your measurements for the best fit.
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <h1 className="font-serif text-3xl font-bold text-foreground">Guide des tailles</h1>
+        <p className="mt-4 text-muted-foreground">
+          Trouvez la taille idéale pour vos abayas, hijabs, kaftans et robes.
         </p>
-        <ul className="list-disc pl-6 mt-4 text-gray-600">
-          <li>Measure around the fullest part of your chest</li>
-          <li>Measure your waist at the smallest part</li>
-          <li>Measure your hips at the fullest part</li>
-        </ul>
-        {/* Add sizing charts, tables, or images if needed */}
+        <div className="mt-8">
+          <h2 className="font-serif text-xl font-medium text-foreground">Comment prendre vos mesures</h2>
+          <ul className="list-disc pl-6 mt-4 space-y-2 text-muted-foreground">
+            <li>Mesurez le tour de poitrine à l&apos;endroit le plus large.</li>
+            <li>Mesurez le tour de taille à l&apos;endroit le plus fin.</li>
+            <li>Mesurez le tour de hanches à l&apos;endroit le plus large.</li>
+          </ul>
+        </div>
       </div>
+      <Footer />
     </div>
   );
-};
-
-export default SizingPage;
+}

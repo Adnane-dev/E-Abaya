@@ -8,17 +8,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function ProductSort() {
+export type SortOption = "newest" | "price-low" | "price-high";
+
+interface ProductSortProps {
+  value: SortOption;
+  onChange: (value: SortOption) => void;
+}
+
+export function ProductSort({ value, onChange }: ProductSortProps) {
   return (
-    <Select defaultValue="newest">
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Sort by" />
+    <Select value={value} onValueChange={(v) => onChange(v as SortOption)}>
+      <SelectTrigger className="w-[200px]">
+        <SelectValue placeholder="Trier par" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="newest">Newest Arrivals</SelectItem>
-        <SelectItem value="price-low">Price: Low to High</SelectItem>
-        <SelectItem value="price-high">Price: High to Low</SelectItem>
-        <SelectItem value="popular">Most Popular</SelectItem>
+        <SelectItem value="newest">Nouveautés</SelectItem>
+        <SelectItem value="price-low">Prix croissant</SelectItem>
+        <SelectItem value="price-high">Prix décroissant</SelectItem>
       </SelectContent>
     </Select>
   );

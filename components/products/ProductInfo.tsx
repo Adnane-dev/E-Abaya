@@ -7,6 +7,7 @@ import { useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/lib/cart";
+import { WishlistButton } from "@/components/products/WishlistButton";
 
 interface ProductInfoProps {
   product: Product;
@@ -47,7 +48,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">{product.name}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="font-serif text-3xl font-bold text-foreground">{product.name}</h1>
+          <WishlistButton
+            productId={product.id}
+            className="p-2 rounded-full border border-border hover:border-accent flex-shrink-0"
+            size="h-5 w-5"
+          />
+        </div>
         <div className="mt-2 flex items-center gap-3">
           <p className="text-xl text-accent font-semibold">
             {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA

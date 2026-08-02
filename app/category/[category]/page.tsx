@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { WishlistButton } from "@/components/products/WishlistButton";
 import { createClient } from "@/lib/supabase";
 import { Product, getDiscountedPrice } from "@/types/product";
 
@@ -241,6 +242,7 @@ export default function CategoryPage() {
                         -{product.discount_percent}%
                       </span>
                     )}
+                    <WishlistButton productId={product.id} className="absolute top-2 right-2 p-2 rounded-full bg-background/80 hover:bg-background shadow-sm" />
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">

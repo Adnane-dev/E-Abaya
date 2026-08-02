@@ -10,15 +10,21 @@ import {
   X,
   User,
   ShoppingCart,
-  Home,
   ChevronDown,
   Sun,
   Moon,
+  Bell,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCart, onCartUpdate } from "@/lib/cart";
 import { createClient } from "@/lib/supabase";
+import { getUnseenOrderCount } from "@/lib/orderNotifications";
+import { STATUS_LABELS } from "@/lib/orderStatus";
+
+type OrderStatusRow = { id: number; status: string };
 
 type AccountRole = "admin" | "courier" | "vendor" | "customer";
 interface AccountState {
@@ -50,6 +56,8 @@ export const Navbar: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [orderNotifCount, setOrderNotifCount] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,6 +85,65 @@ export const Navbar: React.FC = () => {
     };
     refreshCartCount();
     return onCartUpdate(refreshCartCount);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function refreshWishlistCount() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        setWishlistCount(0);
+        return;
+      }
+      const { count } = await supabase
+        .from("wishlists")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userData.user.id);
+      setWishlistCount(count ?? 0);
+    }
+
+    refreshWishlistCount();
+    window.addEventListener("wishlist-updated", refreshWishlistCount);
+    return () => window.removeEventListener("wishlist-updated", refreshWishlistCount);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    async function watchOrders() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        setOrderNotifCount(0);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("orders")
+        .select("id, status")
+        .eq("user_id", userData.user.id);
+      const orders = (data as OrderStatusRow[]) ?? [];
+      setOrderNotifCount(getUnseenOrderCount(orders));
+
+      channel = supabase
+        .channel("navbar-orders-status")
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${userData.user.id}` },
+          (payload) => {
+            const updated = payload.new as OrderStatusRow;
+            toast.info(`Votre commande n° ${updated.id} est maintenant : ${STATUS_LABELS[updated.status] ?? updated.status}`);
+            setOrderNotifCount((count) => count + 1);
+          }
+        )
+        .subscribe();
+    }
+
+    watchOrders();
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -213,7 +280,7 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-            <Home className="h-7 w-7 text-accent" />
+            <Image src="/logo.png" alt="Islamic Style-Girls" width={40} height={40} className="h-10 w-10 object-contain" />
             <span className="hidden lg:block font-serif text-foreground font-bold text-xl tracking-tight">
               Islamic Style-Girls
             </span>
@@ -268,10 +335,31 @@ export const Navbar: React.FC = () => {
               </button>
             )}
 
+            {/* Order status notifications */}
+            {account && (
+              <Link
+                href="/mes-commandes"
+                className="relative p-2 text-foreground/70 hover:text-accent transition-colors"
+                aria-label="Notifications de commandes"
+              >
+                <Bell className="h-5 w-5" />
+                {orderNotifCount > 0 && (
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-accent-foreground bg-accent rounded-full">
+                    {orderNotifCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
             {/* Wishlist */}
-            <button className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Favoris">
+            <Link href="/liste-de-souhaits" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Favoris">
               <Heart className="h-5 w-5" />
-            </button>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-accent-foreground bg-accent rounded-full">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link href="/checkout" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Panier">

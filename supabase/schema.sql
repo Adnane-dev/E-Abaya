@@ -78,6 +78,14 @@ create table if not exists newsletter_subscribers (
   created_at timestamptz default now()
 );
 
+create table if not exists wishlists (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  product_id bigint not null references products(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique (user_id, product_id)
+);
+
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
@@ -212,6 +220,7 @@ alter table orders enable row level security;
 alter table categories enable row level security;
 alter table reviews enable row level security;
 alter table newsletter_subscribers enable row level security;
+alter table wishlists enable row level security;
 alter table site_settings enable row level security;
 
 -- Shops: publicly readable once approved; owner can always see/manage
@@ -374,6 +383,17 @@ drop policy if exists "Admins can view newsletter subscribers" on newsletter_sub
 create policy "Admins can view newsletter subscribers" on newsletter_subscribers
   for select using (public.is_admin(auth.uid()));
 
+-- Wishlists: a user only ever sees/manages their own saved products.
+drop policy if exists "Users can view own wishlist" on wishlists;
+create policy "Users can view own wishlist" on wishlists
+  for select using (auth.uid() = user_id);
+drop policy if exists "Users can add to own wishlist" on wishlists;
+create policy "Users can add to own wishlist" on wishlists
+  for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can remove from own wishlist" on wishlists;
+create policy "Users can remove from own wishlist" on wishlists
+  for delete using (auth.uid() = user_id);
+
 -- Site settings (theme accent color): readable by everyone (needed to
 -- render the theme on every page), editable only by admins.
 drop policy if exists "Site settings are publicly readable" on site_settings;
@@ -464,7 +484,23 @@ grant insert on newsletter_subscribers to anon, authenticated;
 grant select on newsletter_subscribers to authenticated;
 grant select on site_settings to anon, authenticated;
 grant update on site_settings to authenticated;
+grant select, insert, delete on wishlists to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
+
+-- Enable Realtime on orders so customers get a live toast + notification
+-- badge when an admin/courier changes their order status (no email
+-- backend exists, so this is the only delivery channel for that signal).
+-- RLS still applies to realtime: each user only receives change events
+-- for rows their own "Users can view own orders" policy allows.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'orders'
+  ) then
+    alter publication supabase_realtime add table orders;
+  end if;
+end $$;
 
 -- ⚠️ ONE-TIME MANUAL STEP: after you sign up your own account through
 -- /auth/RegisterPage (or the Supabase dashboard), run this once, with

@@ -2,20 +2,12 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase-server";
+import { STATUS_LABELS } from "@/lib/orderStatus";
 import { CheckCircle2 } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: "En attente",
-  confirmed: "Confirmée",
-  picked_up: "Récupérée par le livreur",
-  shipped: "Expédiée",
-  delivered: "Livrée",
-  cancelled: "Annulée",
-};
 
 const PAYMENT_LABELS: Record<string, string> = {
   cod: "Paiement à la livraison",

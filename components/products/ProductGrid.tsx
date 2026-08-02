@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ProductQuickView } from "./ProductQuickView";
+import { WishlistButton } from "./WishlistButton";
 import { ActiveFilters, Product, getDiscountedPrice } from "@/types/product";
 
 interface ProductGridProps {
@@ -62,6 +63,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
                   -{product.discount_percent}%
                 </span>
               )}
+              <WishlistButton productId={product.id} className="absolute top-2 right-2 p-2 rounded-full bg-background/80 hover:bg-background shadow-sm" />
             </div>
             <div className="p-4">
               <h3 className="text-sm text-muted-foreground">{product.category}</h3>

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { Product, getDiscountedPrice } from "@/types/product";
 import { scrollReveal, staggerDelay } from "@/lib/motion";
 import { ProductQuickView } from "@/components/products/ProductQuickView";
+import { WishlistButton } from "@/components/products/WishlistButton";
 
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,6 +65,7 @@ export function FeaturedProducts() {
                   -{product.discount_percent}%
                 </span>
               )}
+              <WishlistButton productId={product.id} className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background shadow-sm" size="h-3.5 w-3.5" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-primary/40 transition-opacity duration-300">
                 <button
                   aria-label={`Voir les détails de ${product.name}`}

@@ -4,13 +4,34 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { createClient } from '@supabase/supabase-js';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-serif' });
 
+const TITLE = 'Islamic Style-Girls - Mode modeste premium';
+const DESCRIPTION =
+  'Abayas, hijabs, kaftans et robes soigneusement sélectionnés, entre héritage africain et raffinement arabe.';
+
 export const metadata: Metadata = {
-  title: 'Islamic Style-Girls - Mode modeste premium',
-  description: 'Abayas, hijabs, kaftans et robes soigneusement sélectionnés, entre héritage africain et raffinement arabe.',
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: `%s | ${SITE_NAME}` },
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [{ url: '/logo.png', width: 1254, height: 1254, alt: SITE_NAME }],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ['/logo.png'],
+  },
 };
 
 const DEFAULT_ACCENT = '15 55% 40%';
@@ -35,7 +56,7 @@ export default async function RootLayout({
   const accentHsl = data?.accent_hsl && ACCENT_PATTERN.test(data.accent_hsl) ? data.accent_hsl : DEFAULT_ACCENT;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <style>{`:root { --accent: ${accentHsl}; --ring: ${accentHsl}; }`}</style>
       </head>

@@ -27,7 +27,7 @@ type ProductFormState = {
   colors: string;
   inStock: boolean;
   isNew: boolean;
-  image: string;
+  images: string[];
 };
 
 const EMPTY_FORM: ProductFormState = {
@@ -42,7 +42,7 @@ const EMPTY_FORM: ProductFormState = {
   colors: "",
   inStock: true,
   isNew: false,
-  image: "",
+  images: [],
 };
 
 interface ProductManagerProps {
@@ -142,7 +142,7 @@ export function ProductManager({ shopId }: ProductManagerProps) {
       colors: (product.colors ?? []).join(", "),
       inStock: product.in_stock,
       isNew: product.is_new ?? false,
-      image: product.image,
+      images: product.images && product.images.length > 0 ? product.images : [product.image],
     });
     setIsModalOpen(true);
   }
@@ -164,25 +164,33 @@ export function ProductManager({ shopId }: ProductManagerProps) {
     setForm((prev) => ({ ...prev, category: name }));
   }
 
-  async function uploadImage(file: File) {
+  async function uploadImages(files: FileList | File[]) {
     setIsUploading(true);
-    const path = `${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) {
-      toast.error("Échec de l'envoi de l'image : " + error.message);
-      setIsUploading(false);
-      return;
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const path = `${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      if (error) {
+        toast.error(`Échec de l'envoi de ${file.name} : ` + error.message);
+        continue;
+      }
+      const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+      uploadedUrls.push(data.publicUrl);
     }
-    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    setForm((prev) => ({ ...prev, image: data.publicUrl }));
+
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
     setIsUploading(false);
+  }
+
+  function removeImage(url: string) {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((img) => img !== url) }));
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
     setDragActive(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) uploadImage(file);
+    if (e.dataTransfer.files.length > 0) uploadImages(e.dataTransfer.files);
   }
 
   async function handleSave() {
@@ -203,7 +211,8 @@ export function ProductManager({ shopId }: ProductManagerProps) {
       colors: form.colors.split(",").map((c) => c.trim()).filter(Boolean),
       in_stock: form.inStock,
       is_new: form.isNew,
-      image: form.image || "/images/placeholder.jpg",
+      image: form.images[0] ?? "/images/placeholder.jpg",
+      images: form.images,
       shop_id: shopId,
     };
 
@@ -405,16 +414,31 @@ export function ProductManager({ shopId }: ProductManagerProps) {
                   id="file-upload"
                   className="hidden"
                   accept="image/*"
-                  onChange={(e) => e.target.files && uploadImage(e.target.files[0])}
+                  multiple
+                  onChange={(e) => e.target.files && uploadImages(e.target.files)}
                 />
                 <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
                   <Upload className="w-10 h-10 text-muted-foreground mb-2" />
                   <span className="text-sm text-muted-foreground">
-                    {isUploading ? "Envoi en cours…" : "Glissez une photo ou cliquez pour en choisir une"}
+                    {isUploading ? "Envoi en cours…" : "Glissez une ou plusieurs photos, ou cliquez pour en choisir"}
                   </span>
                 </label>
-                {form.image && (
-                  <img src={form.image} alt="Aperçu" className="mt-4 h-32 w-32 object-cover rounded-lg mx-auto" />
+                {form.images.length > 0 && (
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {form.images.map((url) => (
+                      <div key={url} className="relative">
+                        <img src={url} alt="Aperçu" className="h-20 w-20 object-cover rounded-lg" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(url)}
+                          className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                          aria-label="Retirer cette photo"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 

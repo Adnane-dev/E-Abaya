@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
+import { STATUS_LABELS } from "@/lib/orderStatus";
+import { markOrdersSeen } from "@/lib/orderNotifications";
 
 interface Order {
   id: number;
@@ -14,23 +16,15 @@ interface Order {
   created_at: string;
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: "En attente",
-  confirmed: "Confirmée",
-  picked_up: "Récupérée par le livreur",
-  shipped: "Expédiée",
-  delivered: "Livrée",
-  cancelled: "Annulée",
-};
-
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
+
     async function loadOrders() {
-      const supabase = createClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
         setIsLoggedIn(false);
@@ -43,10 +37,35 @@ export default function MyOrdersPage() {
         .select("*")
         .eq("user_id", userData.user.id)
         .order("created_at", { ascending: false });
-      setOrders((data as Order[]) ?? []);
+      const loaded = (data as Order[]) ?? [];
+      setOrders(loaded);
       setIsLoading(false);
+      markOrdersSeen(loaded);
+
+      const channel = supabase
+        .channel("my-orders-status")
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${userData.user.id}` },
+          (payload) => {
+            const updated = payload.new as Order;
+            setOrders((prev) => {
+              const next = prev.map((o) => (o.id === updated.id ? updated : o));
+              markOrdersSeen(next);
+              return next;
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-    loadOrders();
+    const cleanupPromise = loadOrders();
+    return () => {
+      cleanupPromise.then((cleanup) => cleanup?.());
+    };
   }, []);
 
   return (

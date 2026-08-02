@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme-provider';
 import { createClient } from '@supabase/supabase-js';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -34,13 +35,15 @@ export default async function RootLayout({
   const accentHsl = data?.accent_hsl && ACCENT_PATTERN.test(data.accent_hsl) ? data.accent_hsl : DEFAULT_ACCENT;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <style>{`:root { --accent: ${accentHsl}; --ring: ${accentHsl}; }`}</style>
       </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
-        {children}
-        <Toaster position="top-center" richColors />
+        <ThemeProvider>
+          {children}
+          <Toaster position="top-center" richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

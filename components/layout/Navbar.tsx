@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   Heart,
   Search,
@@ -11,6 +12,8 @@ import {
   ShoppingCart,
   Home,
   ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -44,6 +47,7 @@ interface Category {
 
 export const Navbar: React.FC = () => {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -52,6 +56,11 @@ export const Navbar: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [account, setAccount] = useState<AccountState | null>(null);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -247,6 +256,17 @@ export const Navbar: React.FC = () => {
                 </button>
               </motion.div>
             </div>
+
+            {/* Theme toggle */}
+            {isMounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="relative p-2 text-foreground/70 hover:text-accent transition-colors"
+                aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+              >
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            )}
 
             {/* Wishlist */}
             <button className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Favoris">

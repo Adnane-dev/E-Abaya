@@ -282,9 +282,22 @@ create policy "Users can view own orders" on orders
 drop policy if exists "Admins can view all orders" on orders;
 create policy "Admins can view all orders" on orders
   for select using (public.is_admin(auth.uid()));
+-- Admins and couriers can both update order status. Deliberately a
+-- SINGLE policy (not two separate ones) with an explicit WITH CHECK —
+-- splitting this into "Admins can update orders" + "Couriers can
+-- update order status" as two separate permissive UPDATE policies
+-- caused "new row violates row-level security policy" for couriers in
+-- practice, because Postgres' default WITH CHECK (falling back to
+-- USING) does not reliably OR together across multiple policies the
+-- way the USING clauses do. One policy with an explicit check removes
+-- the ambiguity entirely.
 drop policy if exists "Admins can update orders" on orders;
-create policy "Admins can update orders" on orders
-  for update using (public.is_admin(auth.uid()));
+drop policy if exists "Couriers can update order status" on orders;
+create policy "Admins and couriers can update orders" on orders
+  for update
+  using (public.is_admin(auth.uid()) or public.is_courier(auth.uid()))
+  with check (public.is_admin(auth.uid()) or public.is_courier(auth.uid()));
+
 drop policy if exists "Users can create own orders" on orders;
 create policy "Users can create own orders" on orders
   for insert with check (auth.uid() = user_id);
@@ -297,10 +310,6 @@ create policy "Couriers can view active orders" on orders
   for select using (
     public.is_courier(auth.uid()) and status in ('confirmed', 'picked_up')
   );
-
-drop policy if exists "Couriers can update order status" on orders;
-create policy "Couriers can update order status" on orders
-  for update using (public.is_courier(auth.uid()));
 
 -- Vendors can see any order that contains at least one item from their
 -- own shop (each cart item snapshot in `items` carries its shop_id) —

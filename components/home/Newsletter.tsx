@@ -2,12 +2,31 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase";
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    setIsSubmitting(true);
+
+    const supabase = createClient();
+    const { error } = await supabase.from("newsletter_subscribers").insert({ email });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      if (error.code === "23505") {
+        toast.info("Vous êtes déjà inscrit(e) à notre newsletter.");
+        setEmail("");
+        return;
+      }
+      toast.error("Erreur lors de l'inscription : " + error.message);
+      return;
+    }
+
     toast.success("Merci ! Vous êtes inscrit(e) à notre newsletter.");
     setEmail("");
   }
@@ -40,9 +59,10 @@ export function Newsletter() {
             />
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground font-medium rounded-md shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground font-medium rounded-md shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition disabled:opacity-60"
             >
-              S&apos;abonner
+              {isSubmitting ? "Envoi…" : "S'abonner"}
             </button>
           </div>
         </form>

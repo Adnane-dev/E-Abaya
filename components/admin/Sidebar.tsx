@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   Search,
   Store,
+  Mail,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { label: "Commandes", href: "/admin/orders", icon: ShoppingBag },
   { label: "Boutiques", href: "/admin/vendors", icon: Store },
   { label: "Clients", href: "/admin/customers", icon: Users },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Statistiques", href: "/admin/analytics", icon: BarChart },
   { label: "Paramètres", href: "/admin/settings", icon: Settings },
 ];

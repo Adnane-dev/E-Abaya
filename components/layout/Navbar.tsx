@@ -154,21 +154,20 @@ export const Navbar: React.FC = () => {
 
   const navigationCategories: Category[] = [
     {
-      title: "Hijabs",
-      href: "/category/hijabs",
+      title: "Hijab",
+      href: "/category/hijab",
       subcategories: [
-        { title: "Classique", href: "/category/hijabs?style=classique" },
-        { title: "Moderne", href: "/category/hijabs?style=moderne" },
-        { title: "Imprimé", href: "/category/hijabs?style=imprime" },
+        { title: "Classique", href: "/category/hijab?style=classique" },
+        { title: "Moderne", href: "/category/hijab?style=moderne" },
+        { title: "Hijab de sport", href: "/category/hijab-sport" },
       ],
     },
     {
-      title: "Abayas",
-      href: "/category/abayas",
+      title: "Jilbab/Abaya",
+      href: "/category/abaya",
       subcategories: [
-        { title: "Styles", href: "/category/abayas?style=classique" },
-        { title: "Couleurs vives", href: "/category/abayas?style=couleurs" },
-        { title: "Tissus premium", href: "/category/abayas?style=tissus" },
+        { title: "Styles", href: "/category/abaya?style=classique" },
+        { title: "Abayas longues", href: "/category/abayas-longues" },
       ],
     },
     {
@@ -180,11 +179,11 @@ export const Navbar: React.FC = () => {
       ],
     },
     {
-      title: "Robes",
-      href: "/category/dresses",
+      title: "Robe",
+      href: "/category/robe",
       subcategories: [
-        { title: "Formelles", href: "/category/dresses?style=formelles" },
-        { title: "Occasions", href: "/category/dresses?style=occasions" },
+        { title: "Formelles", href: "/category/robe?style=formelles" },
+        { title: "Occasions", href: "/category/robe?style=occasions" },
       ],
     },
   ];
@@ -208,6 +207,12 @@ export const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-2">
             {renderCategories(navigationCategories)}
+            <Link
+              href="/collections"
+              className="px-4 py-2 text-foreground/80 hover:text-accent transition-colors"
+            >
+              Toutes les collections
+            </Link>
           </div>
 
           {/* Search and Icons */}
@@ -302,6 +307,20 @@ export const Navbar: React.FC = () => {
                             Devenir vendeur
                           </Link>
                         )}
+                        <Link
+                          href="/mon-compte"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                          className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                        >
+                          Mon compte
+                        </Link>
+                        <Link
+                          href="/mes-commandes"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                          className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                        >
+                          Mes commandes
+                        </Link>
                         <button
                           onClick={handleLogout}
                           className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
@@ -389,6 +408,12 @@ export const Navbar: React.FC = () => {
                         {account.role === "vendor" ? "Mon espace vendeur" : "Devenir vendeur"}
                       </Link>
                     )}
+                    <Link href="/mon-compte" onClick={() => setIsMenuOpen(false)} className="block text-foreground/80 py-1">
+                      Mon compte
+                    </Link>
+                    <Link href="/mes-commandes" onClick={() => setIsMenuOpen(false)} className="block text-foreground/80 py-1">
+                      Mes commandes
+                    </Link>
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);

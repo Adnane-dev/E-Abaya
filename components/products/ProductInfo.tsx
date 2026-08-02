@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Product } from "@/types/product";
+import { Product, getDiscountedPrice } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
@@ -40,7 +40,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
 
   function handleAddToCart() {
-    addToCart(product);
+    addToCart({ ...product, price: getDiscountedPrice(product) });
     toast.success(`${product.name} ajouté au panier`);
   }
 
@@ -48,7 +48,21 @@ export function ProductInfo({ product }: ProductInfoProps) {
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-3xl font-bold text-foreground">{product.name}</h1>
-        <p className="text-xl text-accent mt-2">{product.price.toLocaleString("fr-FR")} CFA</p>
+        <div className="mt-2 flex items-center gap-3">
+          <p className="text-xl text-accent font-semibold">
+            {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA
+          </p>
+          {(product.discount_percent ?? 0) > 0 && (
+            <>
+              <p className="text-base text-muted-foreground line-through">
+                {product.price.toLocaleString("fr-FR")} CFA
+              </p>
+              <span className="text-xs font-semibold bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+                -{product.discount_percent}%
+              </span>
+            </>
+          )}
+        </div>
         {product.shops && (
           <Link href={`/boutique/${product.shops.slug}`} className="text-sm text-muted-foreground hover:text-accent">
             Vendu par {product.shops.name}

@@ -1,17 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { scrollReveal, staggerDelay } from "@/lib/motion";
+import { createClient } from "@/lib/supabase";
 
-const categories = [
-  { name: "Abayas", href: "/category/abayas", span: "lg:col-span-2 lg:row-span-2" },
-  { name: "Hijabs", href: "/category/hijabs", span: "" },
-  { name: "Kaftans", href: "/category/kaftans", span: "" },
-  { name: "Robes", href: "/category/dresses", span: "lg:col-span-2" },
-];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+const SPANS = ["lg:col-span-2 lg:row-span-2", "", "", "lg:col-span-2"];
 
 export function CategoryShowcase() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const supabase = createClient();
+      const { data } = await supabase.from("categories").select("id, name, slug").order("name").limit(4);
+      setCategories((data as Category[]) ?? []);
+    }
+    loadCategories();
+  }, []);
+
+  if (categories.length === 0) return null;
+
   return (
     <div className="bg-secondary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
@@ -20,9 +36,14 @@ export function CategoryShowcase() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-6">
           {categories.map((category, i) => (
-            <motion.div key={category.name} {...scrollReveal} transition={{ ...scrollReveal.transition, ...staggerDelay(i) }} className={category.span}>
+            <motion.div
+              key={category.id}
+              {...scrollReveal}
+              transition={{ ...scrollReveal.transition, ...staggerDelay(i) }}
+              className={SPANS[i] ?? ""}
+            >
               <Link
-                href={category.href}
+                href={`/category/${category.slug}`}
                 aria-label={`Découvrir ${category.name}`}
                 className="group relative flex h-full min-h-[220px] items-center justify-center overflow-hidden rounded-lg bg-primary shadow-md hover:shadow-xl transition-shadow duration-300"
               >

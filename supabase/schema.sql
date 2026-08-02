@@ -34,6 +34,49 @@ create table if not exists products (
 );
 
 alter table products add column if not exists shop_id bigint references shops(id) on delete cascade;
+alter table products add column if not exists discount_percent integer not null default 0;
+
+-- Collections/categories are no longer a fixed list — admins and
+-- vendors can add new ones from the product form. `products.category`
+-- stores the category NAME directly (kept as plain text for backward
+-- compatibility with existing rows); this table is the source of truth
+-- for which collections exist and their public-facing slug.
+create table if not exists categories (
+  id bigint generated always as identity primary key,
+  name text not null unique,
+  slug text not null unique,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+insert into categories (name, slug) values
+  ('Hijab', 'hijab'),
+  ('Jilbab/Abaya', 'abaya'),
+  ('Robe', 'robe'),
+  ('Foulard', 'foulard'),
+  ('Abayas longues', 'abayas-longues'),
+  ('Kaftans', 'kaftans'),
+  ('Hijab de sport', 'hijab-sport'),
+  ('Accessoires', 'accessoires')
+on conflict (name) do nothing;
+
+-- user_id references profiles (not auth.users directly) so PostgREST
+-- can embed profiles(full_name) when fetching reviews.
+create table if not exists reviews (
+  id bigint generated always as identity primary key,
+  product_id bigint not null references products(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  rating int not null check (rating >= 1 and rating <= 5),
+  comment text default '',
+  created_at timestamptz default now(),
+  unique (product_id, user_id)
+);
+
+create table if not exists newsletter_subscribers (
+  id bigint generated always as identity primary key,
+  email text not null unique,
+  created_at timestamptz default now()
+);
 
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -113,6 +156,9 @@ alter table shops enable row level security;
 alter table products enable row level security;
 alter table profiles enable row level security;
 alter table orders enable row level security;
+alter table categories enable row level security;
+alter table reviews enable row level security;
+alter table newsletter_subscribers enable row level security;
 
 -- Shops: publicly readable once approved; owner can always see/manage
 -- their own (including while pending); admins can see/manage all.
@@ -186,6 +232,47 @@ drop policy if exists "Users can create own orders" on orders;
 create policy "Users can create own orders" on orders
   for insert with check (auth.uid() = user_id);
 
+-- Categories: publicly readable; admins and vendors (anyone owning a
+-- shop) can add new collections beyond the seeded list.
+drop policy if exists "Categories are publicly readable" on categories;
+create policy "Categories are publicly readable" on categories
+  for select using (true);
+
+drop policy if exists "Admins and vendors can create categories" on categories;
+create policy "Admins and vendors can create categories" on categories
+  for insert with check (
+    public.is_admin(auth.uid())
+    or exists (select 1 from shops where owner_id = auth.uid())
+  );
+
+-- Reviews: publicly readable; a user manages only their own review
+-- (one review per product per user, enforced by the unique constraint).
+drop policy if exists "Reviews are publicly readable" on reviews;
+create policy "Reviews are publicly readable" on reviews
+  for select using (true);
+
+drop policy if exists "Users can create own reviews" on reviews;
+create policy "Users can create own reviews" on reviews
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update own reviews" on reviews;
+create policy "Users can update own reviews" on reviews
+  for update using (auth.uid() = user_id);
+
+drop policy if exists "Users can delete own reviews" on reviews;
+create policy "Users can delete own reviews" on reviews
+  for delete using (auth.uid() = user_id);
+
+-- Newsletter: anyone (including anonymous visitors) can subscribe;
+-- only admins can read the list of subscribers.
+drop policy if exists "Anyone can subscribe to the newsletter" on newsletter_subscribers;
+create policy "Anyone can subscribe to the newsletter" on newsletter_subscribers
+  for insert with check (true);
+
+drop policy if exists "Admins can view newsletter subscribers" on newsletter_subscribers;
+create policy "Admins can view newsletter subscribers" on newsletter_subscribers
+  for select using (public.is_admin(auth.uid()));
+
 -- Storage bucket for admin/vendor-uploaded product & shop photos
 -- (replaces the unusable watermarked files in public/images — see
 -- project memory "stock-images-warning"). Public read, admin/vendor write.
@@ -242,6 +329,12 @@ grant select, insert, update on profiles to authenticated;
 grant select, insert, update on orders to authenticated;
 grant select on shops to anon, authenticated;
 grant insert, update on shops to authenticated;
+grant select on categories to anon, authenticated;
+grant insert on categories to authenticated;
+grant select on reviews to anon, authenticated;
+grant insert, update, delete on reviews to authenticated;
+grant insert on newsletter_subscribers to anon, authenticated;
+grant select on newsletter_subscribers to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 
 -- ⚠️ ONE-TIME MANUAL STEP: after you sign up your own account through

@@ -4,15 +4,21 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Search, Edit2, Trash2, X, Upload, ArrowUpDown } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { slugify } from "@/lib/slug";
 import { Product } from "@/types/product";
 
-const CATEGORIES = ["Abayas", "Hijabs", "Kaftans", "Dresses"];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
 
 type SortKey = "name" | "category" | "price";
 
 type ProductFormState = {
   name: string;
   price: string;
+  discountPercent: string;
   category: string;
   description: string;
   material: string;
@@ -27,7 +33,8 @@ type ProductFormState = {
 const EMPTY_FORM: ProductFormState = {
   name: "",
   price: "",
-  category: "Abayas",
+  discountPercent: "0",
+  category: "",
   description: "",
   material: "",
   brand: "",
@@ -45,6 +52,7 @@ interface ProductManagerProps {
 
 export function ProductManager({ shopId }: ProductManagerProps) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -58,6 +66,8 @@ export function ProductManager({ shopId }: ProductManagerProps) {
   const [form, setForm] = useState<ProductFormState>(EMPTY_FORM);
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const supabase = createClient();
 
@@ -70,9 +80,18 @@ export function ProductManager({ shopId }: ProductManagerProps) {
     setIsLoading(false);
   }
 
+  async function loadCategories() {
+    const { data } = await supabase.from("categories").select("id, name, slug").order("name");
+    setCategories((data as Category[]) ?? []);
+  }
+
   useEffect(() => {
     loadProducts();
   }, [shopId]);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   const filteredProducts = products
     .filter((product) => {
@@ -105,7 +124,7 @@ export function ProductManager({ shopId }: ProductManagerProps) {
 
   function openCreateModal() {
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, category: categories[0]?.name ?? "" });
     setIsModalOpen(true);
   }
 
@@ -114,6 +133,7 @@ export function ProductManager({ shopId }: ProductManagerProps) {
     setForm({
       name: product.name,
       price: String(product.price),
+      discountPercent: String(product.discount_percent ?? 0),
       category: product.category,
       description: product.description ?? "",
       material: product.material ?? "",
@@ -125,6 +145,23 @@ export function ProductManager({ shopId }: ProductManagerProps) {
       image: product.image,
     });
     setIsModalOpen(true);
+  }
+
+  async function handleAddCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    const { error } = await supabase.from("categories").insert({ name, slug: slugify(name) });
+    if (error) {
+      toast.error("Erreur lors de la création de la collection : " + error.message);
+      return;
+    }
+
+    toast.success("Nouvelle collection ajoutée.");
+    setNewCategoryName("");
+    setIsAddingCategory(false);
+    await loadCategories();
+    setForm((prev) => ({ ...prev, category: name }));
   }
 
   async function uploadImage(file: File) {
@@ -157,6 +194,7 @@ export function ProductManager({ shopId }: ProductManagerProps) {
     const payload = {
       name: form.name,
       price: Number(form.price),
+      discount_percent: Math.min(100, Math.max(0, Number(form.discountPercent) || 0)),
       category: form.category,
       description: form.description,
       material: form.material,
@@ -230,8 +268,8 @@ export function ProductManager({ shopId }: ProductManagerProps) {
           className="px-4 py-2 border border-border rounded-lg bg-background"
         >
           <option value="all">Toutes les catégories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.name}>{c.name}</option>
           ))}
         </select>
       </div>
@@ -304,6 +342,9 @@ export function ProductManager({ shopId }: ProductManagerProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {product.price.toLocaleString("fr-FR")} CFA
+                    {(product.discount_percent ?? 0) > 0 && (
+                      <span className="ml-2 text-xs text-accent font-semibold">-{product.discount_percent}%</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -393,15 +434,55 @@ export function ProductManager({ shopId }: ProductManagerProps) {
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   className="px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
                 />
-                <select
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="Réduction (%)"
+                  value={form.discountPercent}
+                  onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
                   className="px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    className="flex-1 px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
+                  >
+                    {categories.length === 0 && <option value="">Aucune collection</option>}
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingCategory((v) => !v)}
+                    className="px-3 py-2 border border-border rounded-lg text-sm text-accent hover:bg-muted whitespace-nowrap"
+                  >
+                    + Collection
+                  </button>
+                </div>
+                {isAddingCategory && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nom de la nouvelle collection"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCategory}
+                      className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
+                    >
+                      Créer
+                    </button>
+                  </div>
+                )}
               </div>
 
               <textarea

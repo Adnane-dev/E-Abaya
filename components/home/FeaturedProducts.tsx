@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase";
-import { Product } from "@/types/product";
+import { Product, getDiscountedPrice } from "@/types/product";
 import { scrollReveal, staggerDelay } from "@/lib/motion";
 import { ProductQuickView } from "@/components/products/ProductQuickView";
 
@@ -59,6 +59,11 @@ export function FeaturedProducts() {
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
+              {(product.discount_percent ?? 0) > 0 && (
+                <span className="absolute top-2 left-2 text-xs font-semibold bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+                  -{product.discount_percent}%
+                </span>
+              )}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-primary/40 transition-opacity duration-300">
                 <button
                   aria-label={`Voir les détails de ${product.name}`}
@@ -74,9 +79,16 @@ export function FeaturedProducts() {
               <p className="mt-1 text-sm sm:text-lg font-semibold text-foreground group-hover:text-accent transition-colors">
                 {product.name}
               </p>
-              <p className="mt-1 text-sm sm:text-lg text-accent">
-                {product.price.toLocaleString("fr-FR")} CFA
-              </p>
+              <div className="mt-1 flex items-center gap-2 flex-wrap">
+                <p className="text-sm sm:text-lg text-accent">
+                  {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA
+                </p>
+                {(product.discount_percent ?? 0) > 0 && (
+                  <p className="text-xs sm:text-sm text-muted-foreground line-through">
+                    {product.price.toLocaleString("fr-FR")} CFA
+                  </p>
+                )}
+              </div>
               {product.shops && (
                 <p className="mt-1 text-xs text-muted-foreground">Vendu par {product.shops.name}</p>
               )}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { toast } from "sonner";
-import { Product } from "@/types/product";
+import { Product, getDiscountedPrice } from "@/types/product";
 import { addToCart } from "@/lib/cart";
 import {
   Dialog,
@@ -23,7 +23,7 @@ export function ProductQuickView({ product, isOpen, onClose }: ProductQuickViewP
   const currentProduct = product;
 
   function handleAddToCart() {
-    addToCart(currentProduct);
+    addToCart({ ...currentProduct, price: getDiscountedPrice(currentProduct) });
     toast.success(`${currentProduct.name} ajouté au panier`);
     onClose();
   }
@@ -40,9 +40,16 @@ export function ProductQuickView({ product, isOpen, onClose }: ProductQuickViewP
           </div>
 
           <p className="text-center text-muted-foreground">{product.description}</p>
-          <p className="text-xl font-semibold text-accent">
-            {product.price.toLocaleString("fr-FR")} CFA
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xl font-semibold text-accent">
+              {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA
+            </p>
+            {(product.discount_percent ?? 0) > 0 && (
+              <p className="text-sm text-muted-foreground line-through">
+                {product.price.toLocaleString("fr-FR")} CFA
+              </p>
+            )}
+          </div>
 
           <div className="w-full space-y-1 text-sm text-muted-foreground text-center">
             {product.colors?.length > 0 && (

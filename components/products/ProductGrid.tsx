@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ProductQuickView } from "./ProductQuickView";
-import { ActiveFilters, Product } from "@/types/product";
+import { ActiveFilters, Product, getDiscountedPrice } from "@/types/product";
 
 interface ProductGridProps {
   products: Product[];
@@ -57,15 +57,27 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 300px"
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
+              {(product.discount_percent ?? 0) > 0 && (
+                <span className="absolute top-2 left-2 text-xs font-semibold bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+                  -{product.discount_percent}%
+                </span>
+              )}
             </div>
             <div className="p-4">
               <h3 className="text-sm text-muted-foreground">{product.category}</h3>
               <p className="mt-1 text-lg font-medium text-foreground group-hover:text-accent transition-colors">
                 {product.name}
               </p>
-              <p className="mt-1 text-lg text-accent">
-                {product.price.toLocaleString("fr-FR")} CFA
-              </p>
+              <div className="mt-1 flex items-center gap-2">
+                <p className="text-lg text-accent">
+                  {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA
+                </p>
+                {(product.discount_percent ?? 0) > 0 && (
+                  <p className="text-sm text-muted-foreground line-through">
+                    {product.price.toLocaleString("fr-FR")} CFA
+                  </p>
+                )}
+              </div>
               {product.shops && (
                 <p className="mt-1 text-xs text-muted-foreground">Vendu par {product.shops.name}</p>
               )}

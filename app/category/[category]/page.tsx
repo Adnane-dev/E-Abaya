@@ -9,28 +9,20 @@ import { Footer } from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase";
-import { Product } from "@/types/product";
+import { Product, getDiscountedPrice } from "@/types/product";
 
-const CATEGORY_MAP: Record<string, string> = {
-  abayas: "Abayas",
-  hijabs: "Hijabs",
-  kaftans: "Kaftans",
-  dresses: "Dresses",
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  abayas: "Abayas",
-  hijabs: "Hijabs",
-  kaftans: "Kaftans",
-  dresses: "Robes",
-};
+interface CategoryRow {
+  id: number;
+  name: string;
+  slug: string;
+}
 
 export default function CategoryPage() {
   const params = useParams<{ category: string }>();
   const searchParams = useSearchParams();
   const slug = params.category;
-  const dbCategory = CATEGORY_MAP[slug];
 
+  const [category, setCategory] = useState<CategoryRow | null | undefined>(undefined);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("style") ?? "");
@@ -40,23 +32,48 @@ export default function CategoryPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    if (!dbCategory) return;
-    async function loadProducts() {
+    async function loadCategoryAndProducts() {
       setIsLoading(true);
       const supabase = createClient();
+      const { data: categoryRow } = await supabase
+        .from("categories")
+        .select("id, name, slug")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      setCategory(categoryRow ?? null);
+
+      if (!categoryRow) {
+        setIsLoading(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("products")
         .select("*, shops(name, slug)")
-        .eq("category", dbCategory);
+        .eq("category", categoryRow.name);
       setProducts((data as Product[]) ?? []);
       setIsLoading(false);
     }
-    loadProducts();
-  }, [dbCategory]);
+    loadCategoryAndProducts();
+  }, [slug]);
 
-  if (!dbCategory) {
+  if (category === null) {
     notFound();
   }
+  if (category === undefined) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-28 pb-16 flex items-center justify-center text-muted-foreground">
+          Chargement…
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const categoryLabel = category.name;
 
   const uniqueColors = Array.from(new Set(products.flatMap((p) => p.colors ?? [])));
   const uniqueMaterials = Array.from(new Set(products.map((p) => p.material).filter(Boolean)));
@@ -84,7 +101,7 @@ export default function CategoryPage() {
       <main className="flex-grow pt-28 pb-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="font-serif text-3xl font-bold text-center mb-8 text-foreground">
-            Collection {CATEGORY_LABELS[slug]}
+            Collection {categoryLabel}
           </h1>
 
           <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -92,7 +109,7 @@ export default function CategoryPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <input
                 type="text"
-                placeholder={`Rechercher une pièce ${CATEGORY_LABELS[slug].toLowerCase()}...`}
+                placeholder={`Rechercher une pièce ${categoryLabel.toLowerCase()}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent focus:border-transparent"
@@ -209,7 +226,7 @@ export default function CategoryPage() {
 
           {!isLoading && products.length === 0 && (
             <p className="text-center text-muted-foreground mt-8">
-              Aucune pièce {CATEGORY_LABELS[slug].toLowerCase()} en ligne pour le moment — revenez très vite.
+              Aucune pièce {categoryLabel.toLowerCase()} en ligne pour le moment — revenez très vite.
             </p>
           )}
 
@@ -217,8 +234,13 @@ export default function CategoryPage() {
             {filteredProducts.map((product) => (
               <Card key={product.id} className="overflow-hidden border-border">
                 <CardHeader className="p-0">
-                  <div className="aspect-square relative bg-muted">
+                  <div className="relative aspect-[3/4] bg-muted">
                     <img src={product.image} alt={product.name} className="object-cover w-full h-full" />
+                    {(product.discount_percent ?? 0) > 0 && (
+                      <span className="absolute top-2 left-2 text-xs font-semibold bg-accent text-accent-foreground px-2 py-0.5 rounded-full">
+                        -{product.discount_percent}%
+                      </span>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">
@@ -230,9 +252,16 @@ export default function CategoryPage() {
                   )}
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                  <span className="text-lg font-bold text-accent">
-                    {product.price.toLocaleString("fr-FR")} CFA
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-accent">
+                      {getDiscountedPrice(product).toLocaleString("fr-FR")} CFA
+                    </span>
+                    {(product.discount_percent ?? 0) > 0 && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        {product.price.toLocaleString("fr-FR")} CFA
+                      </span>
+                    )}
+                  </div>
                   <Badge variant={product.in_stock ? "default" : "destructive"}>
                     {product.in_stock ? "En stock" : "Rupture"}
                   </Badge>

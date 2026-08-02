@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { ZoomIn } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface ProductGalleryProps {
   images: string[];
@@ -9,23 +11,32 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images }: ProductGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   if (images.length === 0) {
-    return <div className="w-full max-w-sm mx-auto aspect-square rounded-lg bg-muted" />;
+    return <div className="w-full aspect-[3/4] rounded-lg bg-muted" />;
   }
 
   return (
     <div className="space-y-4">
-      {/* Image principale */}
-      <div className="relative w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg bg-muted">
+      {/* Image principale — object-contain pour toujours voir la tenue en entier,
+          quelle que soit la taille/le cadrage de la photo fournie par le vendeur. */}
+      <button
+        onClick={() => setIsZoomOpen(true)}
+        className="group relative w-full aspect-[3/4] overflow-hidden rounded-lg bg-muted cursor-zoom-in"
+        aria-label="Agrandir la photo"
+      >
         <Image
           src={images[selectedImage]}
           alt="Photo du produit"
           fill
           priority
-          className="object-cover object-center"
+          className="object-contain"
         />
-      </div>
+        <span className="absolute bottom-3 right-3 p-2 rounded-full bg-background/80 text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+          <ZoomIn className="h-4 w-4" />
+        </span>
+      </button>
 
       {/* Vignettes d'images */}
       {images.length > 1 && (
@@ -49,6 +60,15 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           ))}
         </div>
       )}
+
+      <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogTitle className="sr-only">Photo du produit agrandie</DialogTitle>
+          <div className="relative w-full aspect-[3/4] max-h-[80vh]">
+            <Image src={images[selectedImage]} alt="Photo du produit agrandie" fill className="object-contain" />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -84,8 +84,11 @@ create table if not exists profiles (
   phone text,
   address text,
   is_admin boolean not null default false,
+  is_courier boolean not null default false,
   created_at timestamptz default now()
 );
+
+alter table profiles add column if not exists is_courier boolean not null default false;
 
 create table if not exists orders (
   id bigint generated always as identity primary key,
@@ -131,6 +134,14 @@ create trigger on_auth_user_created
 create or replace function public.is_admin(user_id uuid)
 returns boolean as $$
   select exists (select 1 from public.profiles where id = user_id and is_admin = true);
+$$ language sql security definer set search_path = public stable;
+
+-- Same pattern as is_admin(), for the delivery-courier role. Couriers
+-- are promoted manually by an admin (see /admin/customers) — there is
+-- no public self-signup for this role.
+create or replace function public.is_courier(user_id uuid)
+returns boolean as $$
+  select exists (select 1 from public.profiles where id = user_id and is_courier = true);
 $$ language sql security definer set search_path = public stable;
 
 -- Prevents a vendor from self-approving their own shop by editing it —
@@ -231,6 +242,19 @@ create policy "Admins can update orders" on orders
 drop policy if exists "Users can create own orders" on orders;
 create policy "Users can create own orders" on orders
   for insert with check (auth.uid() = user_id);
+
+-- Couriers see orders that are ready for pickup or already in transit
+-- (not old delivered/cancelled history), and can advance their status.
+-- The admin-assigned is_courier flag is the only gate — see is_courier().
+drop policy if exists "Couriers can view active orders" on orders;
+create policy "Couriers can view active orders" on orders
+  for select using (
+    public.is_courier(auth.uid()) and status in ('confirmed', 'picked_up')
+  );
+
+drop policy if exists "Couriers can update order status" on orders;
+create policy "Couriers can update order status" on orders
+  for update using (public.is_courier(auth.uid()));
 
 -- Vendors can see any order that contains at least one item from their
 -- own shop (each cart item snapshot in `items` carries its shop_id) —

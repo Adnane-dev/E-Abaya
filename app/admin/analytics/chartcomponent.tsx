@@ -19,6 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tool
 const STATUS_LABELS: Record<string, string> = {
   pending: "En attente",
   confirmed: "Confirmée",
+  picked_up: "Récupérée par le livreur",
   shipped: "Expédiée",
   delivered: "Livrée",
   cancelled: "Annulée",
@@ -75,7 +76,7 @@ export function ChartComponent() {
       {
         label: "Commandes par statut",
         data: statusEntries.map(([, count]) => count),
-        backgroundColor: ["#8a3b2b", "#c9a227", "#4a6b52", "#3a5a8c", "#888888"],
+        backgroundColor: ["#8a3b2b", "#c9a227", "#6b4f8a", "#4a6b52", "#3a5a8c", "#888888"],
         hoverOffset: 4,
       },
     ],

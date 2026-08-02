@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase";
 
 interface Customer {
@@ -9,6 +10,7 @@ interface Customer {
   phone: string | null;
   address: string | null;
   is_admin: boolean;
+  is_courier: boolean;
   created_at: string;
 }
 
@@ -16,18 +18,34 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const supabase = createClient();
+
+  async function loadCustomers() {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setCustomers((data as Customer[]) ?? []);
+    setIsLoading(false);
+  }
+
   useEffect(() => {
-    async function loadCustomers() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setCustomers((data as Customer[]) ?? []);
-      setIsLoading(false);
-    }
     loadCustomers();
   }, []);
+
+  async function toggleCourier(customer: Customer) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_courier: !customer.is_courier })
+      .eq("id", customer.id);
+
+    if (error) {
+      toast.error("Erreur : " + error.message);
+      return;
+    }
+    toast.success(customer.is_courier ? "Statut livreur retiré." : "Compte activé comme livreur.");
+    loadCustomers();
+  }
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -41,19 +59,20 @@ export default function CustomersPage() {
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Téléphone</th>
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Adresse</th>
               <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Inscrit le</th>
+              <th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Livreur</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border text-sm text-foreground">
             {isLoading && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   Chargement…
                 </td>
               </tr>
             )}
             {!isLoading && customers.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   Aucun client inscrit pour le moment.
                 </td>
               </tr>
@@ -65,6 +84,18 @@ export default function CustomersPage() {
                 <td className="px-6 py-4">{customer.address || "—"}</td>
                 <td className="px-6 py-4">
                   {new Date(customer.created_at).toLocaleDateString("fr-FR")}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button
+                    onClick={() => toggleCourier(customer)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium ${
+                      customer.is_courier
+                        ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    }`}
+                  >
+                    {customer.is_courier ? "Retirer" : "Activer"}
+                  </button>
                 </td>
               </tr>
             ))}

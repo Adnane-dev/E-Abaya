@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getCart, onCartUpdate } from "@/lib/cart";
 import { createClient } from "@/lib/supabase";
 
-type AccountRole = "admin" | "vendor" | "customer";
+type AccountRole = "admin" | "courier" | "vendor" | "customer";
 interface AccountState {
   email: string;
   role: AccountRole;
@@ -25,6 +25,7 @@ interface AccountState {
 
 const ROLE_LABELS: Record<AccountRole, string> = {
   admin: "Admin",
+  courier: "Livreur",
   vendor: "Vendeur",
   customer: "Compte",
 };
@@ -81,12 +82,17 @@ export const Navbar: React.FC = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_admin")
+        .select("is_admin, is_courier")
         .eq("id", userData.user.id)
         .maybeSingle();
 
       if (profile?.is_admin) {
         setAccount({ email: userData.user.email ?? "", role: "admin" });
+        return;
+      }
+
+      if (profile?.is_courier) {
+        setAccount({ email: userData.user.email ?? "", role: "courier" });
         return;
       }
 
@@ -289,6 +295,15 @@ export const Navbar: React.FC = () => {
                             Tableau de bord admin
                           </Link>
                         )}
+                        {account.role === "courier" && (
+                          <Link
+                            href="/livreur"
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                          >
+                            Mes livraisons
+                          </Link>
+                        )}
                         {account.role === "vendor" && (
                           <Link
                             href="/vendeur"
@@ -401,6 +416,11 @@ export const Navbar: React.FC = () => {
                     {account.role === "admin" && (
                       <Link href="/admin" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
                         Tableau de bord admin
+                      </Link>
+                    )}
+                    {account.role === "courier" && (
+                      <Link href="/livreur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
+                        Mes livraisons
                       </Link>
                     )}
                     {(account.role === "vendor" || account.role === "customer") && (

@@ -86,10 +86,12 @@ create table if not exists profiles (
   avatar_url text,
   is_admin boolean not null default false,
   is_courier boolean not null default false,
+  courier_requested boolean not null default false,
   created_at timestamptz default now()
 );
 
 alter table profiles add column if not exists is_courier boolean not null default false;
+alter table profiles add column if not exists courier_requested boolean not null default false;
 alter table profiles add column if not exists avatar_url text;
 
 -- Single-row table holding site-wide theme settings — admins pick an
@@ -179,6 +181,29 @@ drop trigger if exists shops_prevent_self_approval on shops;
 create trigger shops_prevent_self_approval
   before update on shops
   for each row execute function public.prevent_shop_self_approval();
+
+-- Security fix: "Users can update own profile" only checks that the
+-- row belongs to them — it does NOT restrict which columns they touch.
+-- Without this trigger, any user could grant themselves admin/courier
+-- rights via a plain profile update. Reverts those two columns to
+-- their previous value unless the actor is already an admin.
+create or replace function public.prevent_profile_self_escalation()
+returns trigger as $$
+begin
+  if (new.is_admin is distinct from old.is_admin or new.is_courier is distinct from old.is_courier) then
+    if not public.is_admin(auth.uid()) then
+      new.is_admin := old.is_admin;
+      new.is_courier := old.is_courier;
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+drop trigger if exists profiles_prevent_self_escalation on profiles;
+create trigger profiles_prevent_self_escalation
+  before update on profiles
+  for each row execute function public.prevent_profile_self_escalation();
 
 alter table shops enable row level security;
 alter table products enable row level security;

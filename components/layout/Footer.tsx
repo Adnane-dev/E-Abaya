@@ -121,9 +121,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Vendors */}
+          {/* Join us */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Vendeurs</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Rejoignez-nous</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/vendeur" className="hover:text-accent transition-colors font-medium">
@@ -131,8 +131,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/vendeur/produits" className="hover:text-accent transition-colors">
-                  Gérer mes produits
+                <Link href="/devenir-livreur" className="hover:text-accent transition-colors font-medium">
+                  Devenir livreur
                 </Link>
               </li>
             </ul>

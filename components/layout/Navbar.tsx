@@ -314,13 +314,22 @@ export const Navbar: React.FC = () => {
                           </Link>
                         )}
                         {account.role === "customer" && (
-                          <Link
-                            href="/vendeur"
-                            onClick={() => setIsAccountMenuOpen(false)}
-                            className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
-                          >
-                            Devenir vendeur
-                          </Link>
+                          <>
+                            <Link
+                              href="/vendeur"
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                            >
+                              Devenir vendeur
+                            </Link>
+                            <Link
+                              href="/devenir-livreur"
+                              onClick={() => setIsAccountMenuOpen(false)}
+                              className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
+                            >
+                              Devenir livreur
+                            </Link>
+                          </>
                         )}
                         <Link
                           href="/mon-compte"
@@ -426,6 +435,11 @@ export const Navbar: React.FC = () => {
                     {(account.role === "vendor" || account.role === "customer") && (
                       <Link href="/vendeur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
                         {account.role === "vendor" ? "Mon espace vendeur" : "Devenir vendeur"}
+                      </Link>
+                    )}
+                    {account.role === "customer" && (
+                      <Link href="/devenir-livreur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
+                        Devenir livreur
                       </Link>
                     )}
                     <Link href="/mon-compte" onClick={() => setIsMenuOpen(false)} className="block text-foreground/80 py-1">

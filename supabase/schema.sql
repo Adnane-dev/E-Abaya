@@ -270,6 +270,9 @@ create policy "Admins can view all profiles" on profiles
 drop policy if exists "Users can update own profile" on profiles;
 create policy "Users can update own profile" on profiles
   for update using (auth.uid() = id);
+drop policy if exists "Admins can update any profile" on profiles;
+create policy "Admins can update any profile" on profiles
+  for update using (public.is_admin(auth.uid()));
 
 -- Users can read and create only their own orders; admins can read all
 -- and update status (fulfilling orders).

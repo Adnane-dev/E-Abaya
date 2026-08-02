@@ -38,13 +38,18 @@ export default function CustomersPage() {
   }, []);
 
   async function toggleCourier(customer: Customer) {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .update({ is_courier: !customer.is_courier })
-      .eq("id", customer.id);
+      .eq("id", customer.id)
+      .select("id");
 
     if (error) {
       toast.error("Erreur : " + error.message);
+      return;
+    }
+    if (!data || data.length === 0) {
+      toast.error("Aucune modification appliquée (droits insuffisants ?).");
       return;
     }
     toast.success(customer.is_courier ? "Statut livreur retiré." : "Compte activé comme livreur.");

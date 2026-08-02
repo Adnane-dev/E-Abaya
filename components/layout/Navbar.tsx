@@ -280,7 +280,7 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-            <Image src="/logo.png" alt="Islamic Style-Girls" width={40} height={40} className="h-10 w-10 object-contain" />
+            <Image src="/logo-icon.png" alt="Islamic Style-Girls" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
             <span className="hidden lg:block font-serif text-foreground font-bold text-xl tracking-tight">
               Islamic Style-Girls
             </span>

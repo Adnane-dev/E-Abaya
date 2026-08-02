@@ -6,6 +6,7 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  shop_id: number | null;
 }
 
 const CART_EVENT = "cart-updated";
@@ -28,6 +29,7 @@ export function addToCart(product: Product, quantity = 1) {
       price: product.price,
       image: product.image,
       quantity,
+      shop_id: product.shop_id ?? null,
     });
   }
 

@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Store, Package, LogOut } from "lucide-react";
+import { Store, Package, ShoppingBag, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 const NAV_ITEMS = [
   { label: "Tableau de bord", href: "/vendeur", icon: Store },
   { label: "Mes produits", href: "/vendeur/produits", icon: Package },
+  { label: "Commandes", href: "/vendeur/commandes", icon: ShoppingBag },
   { label: "Ma boutique", href: "/vendeur/boutique", icon: Store },
 ];
 

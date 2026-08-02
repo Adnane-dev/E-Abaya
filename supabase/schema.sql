@@ -232,6 +232,20 @@ drop policy if exists "Users can create own orders" on orders;
 create policy "Users can create own orders" on orders
   for insert with check (auth.uid() = user_id);
 
+-- Vendors can see any order that contains at least one item from their
+-- own shop (each cart item snapshot in `items` carries its shop_id) —
+-- the vendor UI then filters `items` down to just their own products
+-- before displaying, so they never see another seller's line items.
+drop policy if exists "Vendors can view orders with their products" on orders;
+create policy "Vendors can view orders with their products" on orders
+  for select using (
+    exists (
+      select 1 from jsonb_array_elements(items) as item
+      join shops on shops.id = (item->>'shop_id')::bigint
+      where shops.owner_id = auth.uid()
+    )
+  );
+
 -- Categories: publicly readable; admins and vendors (anyone owning a
 -- shop) can add new collections beyond the seeded list.
 drop policy if exists "Categories are publicly readable" on categories;

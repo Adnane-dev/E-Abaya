@@ -15,6 +15,7 @@ import {
   Search,
   Store,
   Mail,
+  Home,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
@@ -88,7 +89,14 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-4 space-y-1">
+        <Link
+          href="/"
+          className={`flex items-center ${isCollapsed ? "justify-center" : ""} p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors`}
+        >
+          <Home className="h-5 w-5" />
+          {!isCollapsed && <span className="ml-3">Retour à l&apos;accueil</span>}
+        </Link>
         <button
           onClick={handleLogout}
           className={`flex items-center justify-center w-full p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors ${

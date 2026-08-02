@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Store, Package, ShoppingBag, LogOut } from "lucide-react";
+import { Store, Package, ShoppingBag, LogOut, Home } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 const NAV_ITEMS = [
@@ -95,7 +95,14 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
             </Link>
           ))}
         </nav>
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-4 space-y-1">
+          <Link
+            href="/"
+            className="flex items-center p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Home className="h-5 w-5" />
+            <span className="ml-3">Retour à l&apos;accueil</span>
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center w-full p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"

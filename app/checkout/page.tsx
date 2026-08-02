@@ -79,13 +79,21 @@ export default function CheckoutPage() {
       .select("id")
       .single();
 
-    setIsSubmitting(false);
-
     if (error || !order) {
+      setIsSubmitting(false);
       toast.error("Erreur lors de la commande : " + (error?.message ?? "inconnue"));
       return;
     }
 
+    // Keep the profile in sync with the latest known contact/delivery
+    // info so the admin customers list isn't empty just because nobody
+    // separately visited "Mon compte".
+    await supabase
+      .from("profiles")
+      .update({ full_name: customerName, phone: customerPhone, address: deliveryAddress })
+      .eq("id", userData.user.id);
+
+    setIsSubmitting(false);
     clearCart();
     toast.success("Commande passée avec succès !");
     router.push(`/commande/${order.id}`);

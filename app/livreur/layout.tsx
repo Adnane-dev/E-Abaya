@@ -64,19 +64,19 @@ export default function CourierLayout({ children }: { children: React.ReactNode 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-accent" />
-            <span className="font-serif text-lg font-bold text-foreground">Espace Livreur</span>
+            <span className="font-serif text-lg font-bold text-foreground hidden sm:inline">Espace Livreur</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <Home className="h-4 w-4" />
-              Accueil
+              <span className="hidden sm:inline">Accueil</span>
             </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-destructive"
             >
               <LogOut className="h-4 w-4" />
-              Déconnexion
+              <span className="hidden sm:inline">Déconnexion</span>
             </button>
           </div>
         </div>

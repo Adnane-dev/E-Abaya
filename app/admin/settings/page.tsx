@@ -2,13 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+
+const ACCENT_PRESETS = [
+  { name: "Bordeaux/Terracotta", hsl: "15 55% 40%" },
+  { name: "Or/Champagne", hsl: "38 45% 55%" },
+  { name: "Émeraude", hsl: "150 40% 30%" },
+  { name: "Bleu nuit", hsl: "220 45% 30%" },
+  { name: "Prune", hsl: "300 30% 35%" },
+];
 
 export default function SettingsPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [accentHsl, setAccentHsl] = useState(ACCENT_PRESETS[0].hsl);
 
   useEffect(() => {
     async function loadProfile() {
@@ -24,10 +34,29 @@ export default function SettingsPage() {
 
       setFullName(data?.full_name ?? "");
       setPhone(data?.phone ?? "");
+
+      const { data: settings } = await supabase
+        .from("site_settings")
+        .select("accent_hsl")
+        .eq("id", 1)
+        .maybeSingle();
+      if (settings?.accent_hsl) setAccentHsl(settings.accent_hsl);
+
       setIsLoading(false);
     }
     loadProfile();
   }, []);
+
+  async function handleAccentChange(hsl: string) {
+    const supabase = createClient();
+    const { error } = await supabase.from("site_settings").update({ accent_hsl: hsl }).eq("id", 1);
+    if (error) {
+      toast.error("Erreur : " + error.message);
+      return;
+    }
+    setAccentHsl(hsl);
+    toast.success("Couleur d'accent mise à jour. Rechargez la page pour voir l'effet sur tout le site.");
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -61,7 +90,34 @@ export default function SettingsPage() {
       {isLoading ? (
         <p className="text-muted-foreground">Chargement…</p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-6 shadow-sm">
+        <>
+          <div className="bg-card border border-border rounded-lg p-6 shadow-sm mb-6">
+            <h2 className="font-medium text-foreground mb-1">Apparence du site</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Couleur d&apos;accent utilisée sur tout le site (boutons, prix, liens actifs).
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {ACCENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.hsl}
+                  type="button"
+                  onClick={() => handleAccentChange(preset.hsl)}
+                  className="flex flex-col items-center gap-2"
+                  aria-label={preset.name}
+                >
+                  <span
+                    className="relative h-10 w-10 rounded-full border-2 border-border flex items-center justify-center"
+                    style={{ backgroundColor: `hsl(${preset.hsl})` }}
+                  >
+                    {accentHsl === preset.hsl && <Check className="h-5 w-5 text-white drop-shadow" />}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{preset.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-6 shadow-sm">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
               Nom complet
@@ -95,7 +151,8 @@ export default function SettingsPage() {
           >
             {isSaving ? "Enregistrement…" : "Enregistrer"}
           </button>
-        </form>
+          </form>
+        </>
       )}
     </div>
   );

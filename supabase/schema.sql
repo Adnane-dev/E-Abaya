@@ -83,12 +83,29 @@ create table if not exists profiles (
   full_name text,
   phone text,
   address text,
+  avatar_url text,
   is_admin boolean not null default false,
   is_courier boolean not null default false,
   created_at timestamptz default now()
 );
 
 alter table profiles add column if not exists is_courier boolean not null default false;
+alter table profiles add column if not exists avatar_url text;
+
+-- Single-row table holding site-wide theme settings — admins pick an
+-- accent color from a curated preset list in /admin/settings; the root
+-- layout reads this at request time and overrides the --accent CSS
+-- variable, so the whole site's accent color updates without a
+-- redeploy. Public read (needed to render the theme for every
+-- visitor), admin-only write.
+create table if not exists site_settings (
+  id int primary key default 1,
+  accent_hsl text not null default '15 55% 40%',
+  updated_at timestamptz default now(),
+  constraint site_settings_singleton check (id = 1)
+);
+
+insert into site_settings (id) values (1) on conflict (id) do nothing;
 
 create table if not exists orders (
   id bigint generated always as identity primary key,
@@ -170,6 +187,7 @@ alter table orders enable row level security;
 alter table categories enable row level security;
 alter table reviews enable row level security;
 alter table newsletter_subscribers enable row level security;
+alter table site_settings enable row level security;
 
 -- Shops: publicly readable once approved; owner can always see/manage
 -- their own (including while pending); admins can see/manage all.
@@ -311,6 +329,16 @@ drop policy if exists "Admins can view newsletter subscribers" on newsletter_sub
 create policy "Admins can view newsletter subscribers" on newsletter_subscribers
   for select using (public.is_admin(auth.uid()));
 
+-- Site settings (theme accent color): readable by everyone (needed to
+-- render the theme on every page), editable only by admins.
+drop policy if exists "Site settings are publicly readable" on site_settings;
+create policy "Site settings are publicly readable" on site_settings
+  for select using (true);
+
+drop policy if exists "Admins can update site settings" on site_settings;
+create policy "Admins can update site settings" on site_settings
+  for update using (public.is_admin(auth.uid()));
+
 -- Storage bucket for admin/vendor-uploaded product & shop photos
 -- (replaces the unusable watermarked files in public/images — see
 -- project memory "stock-images-warning"). Public read, admin/vendor write.
@@ -358,6 +386,22 @@ create policy "Owners and admins can view identity documents" on storage.objects
     )
   );
 
+-- Public bucket for user profile avatars — any authenticated user can
+-- upload their own, under their own user-id folder.
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Avatars are publicly readable" on storage.objects;
+create policy "Avatars are publicly readable" on storage.objects
+  for select using (bucket_id = 'avatars');
+
+drop policy if exists "Users can upload own avatar" on storage.objects;
+create policy "Users can upload own avatar" on storage.objects
+  for insert with check (
+    bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
 -- Explicit grants so the Data API works even with "Automatically expose
 -- new tables" left OFF in the project settings (recommended default) —
 -- RLS policies above still control which rows are actually visible.
@@ -373,6 +417,8 @@ grant select on reviews to anon, authenticated;
 grant insert, update, delete on reviews to authenticated;
 grant insert on newsletter_subscribers to anon, authenticated;
 grant select on newsletter_subscribers to authenticated;
+grant select on site_settings to anon, authenticated;
+grant update on site_settings to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 
 -- ⚠️ ONE-TIME MANUAL STEP: after you sign up your own account through

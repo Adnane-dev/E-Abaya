@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Store, Package, ShoppingBag, LogOut, Home } from "lucide-react";
+import { Store, Package, ShoppingBag, LogOut, Home, Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 const NAV_ITEMS = [
@@ -17,6 +17,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<"checking" | "ready">("checking");
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -77,15 +78,41 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="flex h-screen bg-muted">
-      <div className="w-64 bg-card border-r border-border flex flex-col">
-        <div className="p-4 border-b border-border">
+      {!isMobileOpen && (
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-card border border-border rounded-lg shadow-md"
+          aria-label="Ouvrir le menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
+
+      {isMobileOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setIsMobileOpen(false)} />
+      )}
+
+      <div
+        className={`fixed md:relative inset-y-0 left-0 z-40 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <h1 className="font-serif text-xl font-bold text-foreground">Espace Vendeur</h1>
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label="Fermer le menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
-        <nav className="flex-grow p-4 space-y-1">
+        <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
             <Link
               key={href}
               href={href}
+              onClick={() => setIsMobileOpen(false)}
               className={`flex items-center p-2 rounded-lg transition-colors ${
                 pathname === href ? "bg-accent/10 text-accent" : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
@@ -98,6 +125,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
         <div className="border-t border-border p-4 space-y-1">
           <Link
             href="/"
+            onClick={() => setIsMobileOpen(false)}
             className="flex items-center p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <Home className="h-5 w-5" />
@@ -112,7 +140,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
           </button>
         </div>
       </div>
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <main className="flex-1 overflow-y-auto p-4 pt-20 md:p-8">{children}</main>
     </div>
   );
 }

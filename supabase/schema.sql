@@ -293,6 +293,7 @@ create policy "Admins can view all orders" on orders
 -- the ambiguity entirely.
 drop policy if exists "Admins can update orders" on orders;
 drop policy if exists "Couriers can update order status" on orders;
+drop policy if exists "Admins and couriers can update orders" on orders;
 create policy "Admins and couriers can update orders" on orders
   for update
   using (public.is_admin(auth.uid()) or public.is_courier(auth.uid()))

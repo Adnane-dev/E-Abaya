@@ -305,10 +305,17 @@ create policy "Users can create own orders" on orders
 -- Couriers see orders that are ready for pickup or already in transit
 -- (not old delivered/cancelled history), and can advance their status.
 -- The admin-assigned is_courier flag is the only gate — see is_courier().
+-- Includes 'delivered' (not just 'confirmed'/'picked_up'): Supabase's
+-- update() implicitly needs to re-select the row it just changed, so
+-- marking an order "delivered" was failing with "new row violates
+-- row-level security policy" once the new status fell outside what
+-- this policy allowed to be read back. The /livreur dashboard's own
+-- query still filters to .in(['confirmed','picked_up']) client-side,
+-- so widening this policy doesn't bring old deliveries back into view.
 drop policy if exists "Couriers can view active orders" on orders;
 create policy "Couriers can view active orders" on orders
   for select using (
-    public.is_courier(auth.uid()) and status in ('confirmed', 'picked_up')
+    public.is_courier(auth.uid()) and status in ('confirmed', 'picked_up', 'delivered')
   );
 
 -- Vendors can see any order that contains at least one item from their

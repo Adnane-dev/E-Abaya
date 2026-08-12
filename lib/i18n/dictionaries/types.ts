@@ -305,6 +305,23 @@ export interface OfflineDict {
   syncSuccess: (count: number) => string;
 }
 
+export interface LivreurDict {
+  orderNumber: (id: number) => string;
+  delivered: string;
+  markPickedUp: string;
+  markDelivered: string;
+  toPickUp: string;
+  inTransit: string;
+  deliveredHeading: string;
+  noOrdersToPickUp: string;
+  noOrdersInTransit: string;
+  noDeliveriesYet: string;
+  totalDelivered: string;
+  statusUpdateError: (message: string) => string;
+  markedPickedUpToast: string;
+  markedDeliveredToast: string;
+}
+
 export interface HomeDict {
   hero: {
     ariaLabel: string;

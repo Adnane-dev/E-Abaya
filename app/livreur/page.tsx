@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Package, CheckCircle2, Truck, ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { CartItem } from "@/lib/cart";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface Order {
   id: number;
@@ -22,6 +23,7 @@ function orderSubtotal(order: Order) {
 }
 
 export default function CourierDashboard() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,12 +49,10 @@ export default function CourierDashboard() {
     const { error } = await supabase.from("orders").update({ status: nextStatus }).eq("id", order.id);
 
     if (error) {
-      toast.error("Erreur : " + error.message);
+      toast.error(t.livreur.statusUpdateError(error.message));
       return;
     }
-    toast.success(
-      nextStatus === "picked_up" ? "Commande marquée comme récupérée." : "Commande marquée comme livrée."
-    );
+    toast.success(nextStatus === "picked_up" ? t.livreur.markedPickedUpToast : t.livreur.markedDeliveredToast);
     loadOrders();
   }
 
@@ -65,7 +65,7 @@ export default function CourierDashboard() {
     return (
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="flex justify-between items-start mb-3">
-          <p className="font-medium text-foreground">Commande n° {order.id}</p>
+          <p className="font-medium text-foreground">{t.livreur.orderNumber(order.id)}</p>
           <span className="text-xs text-muted-foreground">
             {new Date(order.created_at).toLocaleDateString("fr-FR")}
           </span>
@@ -85,7 +85,7 @@ export default function CourierDashboard() {
 
         {order.status === "delivered" ? (
           <div className="flex items-center justify-center gap-2 py-2 bg-primary/10 text-primary rounded-md text-sm font-medium">
-            <CheckCircle2 className="h-4 w-4" /> Livrée
+            <CheckCircle2 className="h-4 w-4" /> {t.livreur.delivered}
           </div>
         ) : (
           <button
@@ -94,11 +94,11 @@ export default function CourierDashboard() {
           >
             {order.status === "confirmed" ? (
               <>
-                <Package className="h-4 w-4" /> Marquer comme récupérée
+                <Package className="h-4 w-4" /> {t.livreur.markPickedUp}
               </>
             ) : (
               <>
-                <CheckCircle2 className="h-4 w-4" /> Marquer comme livrée
+                <CheckCircle2 className="h-4 w-4" /> {t.livreur.markDelivered}
               </>
             )}
           </button>
@@ -108,7 +108,7 @@ export default function CourierDashboard() {
   }
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Chargement…</p>;
+    return <p className="text-muted-foreground">{t.common.loading}</p>;
   }
 
   return (
@@ -118,30 +118,30 @@ export default function CourierDashboard() {
         <div className="bg-card border border-border rounded-lg p-4 flex items-center gap-3">
           <ClipboardList className="h-8 w-8 text-accent" />
           <div>
-            <p className="text-sm text-muted-foreground">À récupérer</p>
+            <p className="text-sm text-muted-foreground">{t.livreur.toPickUp}</p>
             <p className="text-2xl font-bold text-foreground">{toPickUp.length}</p>
           </div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 flex items-center gap-3">
           <Truck className="h-8 w-8 text-accent" />
           <div>
-            <p className="text-sm text-muted-foreground">En cours de livraison</p>
+            <p className="text-sm text-muted-foreground">{t.livreur.inTransit}</p>
             <p className="text-2xl font-bold text-foreground">{inTransit.length}</p>
           </div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 flex items-center gap-3">
           <CheckCircle2 className="h-8 w-8 text-accent" />
           <div>
-            <p className="text-sm text-muted-foreground">Livrées</p>
+            <p className="text-sm text-muted-foreground">{t.livreur.deliveredHeading}</p>
             <p className="text-2xl font-bold text-foreground">{delivered.length}</p>
           </div>
         </div>
       </div>
 
       <div>
-        <h2 className="font-serif text-xl font-bold text-foreground mb-4">À récupérer ({toPickUp.length})</h2>
+        <h2 className="font-serif text-xl font-bold text-foreground mb-4">{t.livreur.toPickUp} ({toPickUp.length})</h2>
         {toPickUp.length === 0 ? (
-          <p className="text-muted-foreground">Aucune commande à récupérer pour le moment.</p>
+          <p className="text-muted-foreground">{t.livreur.noOrdersToPickUp}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {toPickUp.map((order) => <OrderCard key={order.id} order={order} />)}
@@ -150,9 +150,9 @@ export default function CourierDashboard() {
       </div>
 
       <div>
-        <h2 className="font-serif text-xl font-bold text-foreground mb-4">En cours de livraison ({inTransit.length})</h2>
+        <h2 className="font-serif text-xl font-bold text-foreground mb-4">{t.livreur.inTransit} ({inTransit.length})</h2>
         {inTransit.length === 0 ? (
-          <p className="text-muted-foreground">Aucune commande en cours de livraison.</p>
+          <p className="text-muted-foreground">{t.livreur.noOrdersInTransit}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {inTransit.map((order) => <OrderCard key={order.id} order={order} />)}
@@ -162,15 +162,15 @@ export default function CourierDashboard() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-foreground">Historique des livraisons ({delivered.length})</h2>
+          <h2 className="font-serif text-xl font-bold text-foreground">{t.livreur.deliveredHeading} ({delivered.length})</h2>
           {delivered.length > 0 && (
             <p className="text-sm text-muted-foreground">
-              Total livré : <span className="text-accent font-semibold">{totalDelivered.toLocaleString("fr-FR")} CFA</span>
+              {t.livreur.totalDelivered} <span className="text-accent font-semibold">{totalDelivered.toLocaleString("fr-FR")} CFA</span>
             </p>
           )}
         </div>
         {delivered.length === 0 ? (
-          <p className="text-muted-foreground">Aucune livraison effectuée pour le moment.</p>
+          <p className="text-muted-foreground">{t.livreur.noDeliveriesYet}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {delivered.map((order) => <OrderCard key={order.id} order={order} />)}

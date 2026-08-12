@@ -9,5 +9,6 @@ import { checkout } from "./checkout";
 import { account } from "./account";
 import { auth } from "./auth";
 import { offline } from "./offline";
+import { livreur } from "./livreur";
 
-export const ar = { common, nav, footer, home, products, search, staticPages, checkout, account, auth, offline };
+export const ar = { common, nav, footer, home, products, search, staticPages, checkout, account, auth, offline, livreur };

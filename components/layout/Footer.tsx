@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function Footer() {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   // Vérifier si l'utilisateur est en bas de la page
@@ -37,31 +39,31 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Shop Links */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Boutique</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">{t.footer.shopHeading}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/category/new-arrivals" className="hover:text-accent transition-colors">
-                  Nouveautés
+                  {t.footer.newArrivals}
                 </Link>
               </li>
               <li>
                 <Link href="/category/abayas" className="hover:text-accent transition-colors">
-                  Abayas
+                  {t.footer.abayas}
                 </Link>
               </li>
               <li>
                 <Link href="/category/hijabs" className="hover:text-accent transition-colors">
-                  Hijabs
+                  {t.footer.hijabs}
                 </Link>
               </li>
               <li>
                 <Link href="/category/kaftans" className="hover:text-accent transition-colors">
-                  Kaftans
+                  {t.footer.kaftans}
                 </Link>
               </li>
               <li>
                 <Link href="/category/dresses" className="hover:text-accent transition-colors">
-                  Robes
+                  {t.footer.dresses}
                 </Link>
               </li>
             </ul>
@@ -69,26 +71,26 @@ export function Footer() {
 
           {/* Help Links */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Aide</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">{t.footer.helpHeading}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/shipping" className="hover:text-accent transition-colors">
-                  Livraison
+                  {t.footer.shipping}
                 </Link>
               </li>
               <li>
                 <Link href="/returns" className="hover:text-accent transition-colors">
-                  Retours
+                  {t.footer.returns}
                 </Link>
               </li>
               <li>
                 <Link href="/sizing" className="hover:text-accent transition-colors">
-                  Guide des tailles
+                  {t.footer.sizing}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-accent transition-colors">
-                  Contactez-nous
+                  {t.footer.contact}
                 </Link>
               </li>
             </ul>
@@ -96,26 +98,26 @@ export function Footer() {
 
           {/* About Links */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">À propos</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">{t.footer.aboutHeading}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/about" className="hover:text-accent transition-colors">
-                  Notre histoire
+                  {t.footer.ourStory}
                 </Link>
               </li>
               <li>
                 <Link href="/designers" className="hover:text-accent transition-colors">
-                  Nos créateurs
+                  {t.footer.designers}
                 </Link>
               </li>
               <li>
                 <Link href="/sustainability" className="hover:text-accent transition-colors">
-                  Engagement durable
+                  {t.footer.sustainability}
                 </Link>
               </li>
               <li>
                 <Link href="/careers" className="hover:text-accent transition-colors">
-                  Carrières
+                  {t.footer.careers}
                 </Link>
               </li>
             </ul>
@@ -123,16 +125,16 @@ export function Footer() {
 
           {/* Join us */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Rejoignez-nous</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">{t.footer.joinHeading}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/vendeur" className="hover:text-accent transition-colors font-medium">
-                  Devenir vendeur
+                  {t.footer.becomeVendor}
                 </Link>
               </li>
               <li>
                 <Link href="/devenir-livreur" className="hover:text-accent transition-colors font-medium">
-                  Devenir livreur
+                  {t.footer.becomeCourier}
                 </Link>
               </li>
             </ul>
@@ -140,7 +142,7 @@ export function Footer() {
 
           {/* Follow Us Links */}
           <div>
-            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">Suivez-nous</h3>
+            <h3 className="font-serif text-primary-foreground text-lg font-semibold mb-4">{t.footer.followHeading}</h3>
             <ul className="space-y-2">
               <li>
                 <a href="https://facebook.com/people/Niger40/61588825723446" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
@@ -178,7 +180,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-primary-foreground/10">
           <p className="text-primary-foreground/50 text-center text-sm">
-            © 2026 Islamic Style-Girls. Tous droits réservés.
+            {t.footer.copyright(new Date().getFullYear())}
           </p>
         </div>
       </div>
@@ -188,7 +190,7 @@ export function Footer() {
         <button
           onClick={scrollToTop}
           className="fixed bottom-4 right-4 bg-accent text-accent-foreground p-3 rounded-full shadow-lg hover:bg-accent/90 transition"
-          aria-label="Retour en haut"
+          aria-label={t.footer.backToTopAria}
         >
           ↑
         </button>

@@ -1,0 +1,26 @@
+import { FooterDict } from "../types";
+
+export const footer: FooterDict = {
+  shopHeading: "المتجر",
+  newArrivals: "أحدث المنتجات",
+  abayas: "عبايات",
+  hijabs: "حجابات",
+  kaftans: "قفاطين",
+  dresses: "فساتين",
+  helpHeading: "المساعدة",
+  shipping: "التوصيل",
+  returns: "الإرجاع",
+  sizing: "دليل المقاسات",
+  contact: "اتصل بنا",
+  aboutHeading: "من نحن",
+  ourStory: "قصتنا",
+  designers: "مصمّمونا",
+  sustainability: "التزامنا بالاستدامة",
+  careers: "الوظائف",
+  joinHeading: "انضم إلينا",
+  becomeVendor: "كن بائعًا",
+  becomeCourier: "كن عامل توصيل",
+  followHeading: "تابعنا",
+  copyright: (year) => `© ${year} Islamic Style-Girls. جميع الحقوق محفوظة.`,
+  backToTopAria: "العودة إلى الأعلى",
+};

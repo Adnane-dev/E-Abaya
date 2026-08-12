@@ -9,8 +9,10 @@ import { Product, getDiscountedPrice } from "@/types/product";
 import { scrollReveal, staggerDelay } from "@/lib/motion";
 import { ProductQuickView } from "@/components/products/ProductQuickView";
 import { WishlistButton } from "@/components/products/WishlistButton";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function FeaturedProducts() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -32,12 +34,12 @@ export function FeaturedProducts() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <h2 className="font-serif text-3xl font-bold text-foreground mb-10 text-center">
-        Nos coups de cœur
+        {t.home.featured.heading}
       </h2>
 
       {!isLoading && products.length === 0 && (
         <p className="text-center text-muted-foreground py-12">
-          Le catalogue arrive très bientôt — revenez vite !
+          {t.home.featured.empty}
         </p>
       )}
 
@@ -68,7 +70,7 @@ export function FeaturedProducts() {
               <WishlistButton productId={product.id} className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background shadow-sm" size="h-3.5 w-3.5" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-primary/40 transition-opacity duration-300">
                 <button
-                  aria-label={`Voir les détails de ${product.name}`}
+                  aria-label={t.home.featured.viewDetails(product.name)}
                   className="p-3 rounded-full bg-background text-foreground shadow-md hover:bg-accent hover:text-accent-foreground transition duration-300"
                 >
                   <Eye className="h-5 w-5" />
@@ -92,7 +94,7 @@ export function FeaturedProducts() {
                 )}
               </div>
               {product.shops && (
-                <p className="mt-1 text-xs text-muted-foreground">Vendu par {product.shops.name}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t.home.featured.soldBy(product.shops.name)}</p>
               )}
             </div>
           </motion.div>

@@ -1,0 +1,26 @@
+import { FooterDict } from "../types";
+
+export const footer: FooterDict = {
+  shopHeading: "Shago",
+  newArrivals: "Sabbin kayayyaki",
+  abayas: "Abaya",
+  hijabs: "Hijabi",
+  kaftans: "Kaftan",
+  dresses: "Riguna",
+  helpHeading: "Taimako",
+  shipping: "Kai kaya",
+  returns: "Mayar da kaya",
+  sizing: "Jagorar girma",
+  contact: "Tuntuɓe mu",
+  aboutHeading: "Game da mu",
+  ourStory: "Labarinmu",
+  designers: "Masu ƴinƴin kayanmu",
+  sustainability: "Sadaukarwarmu",
+  careers: "Ayyukan yi",
+  joinHeading: "Ku haɗa da mu",
+  becomeVendor: "Zama dillali",
+  becomeCourier: "Zama mai kaiwa",
+  followHeading: "Ku bi mu",
+  copyright: (year) => `© ${year} Islamic Style-Girls. Duk haƙƙoƙi an kiyaye su.`,
+  backToTopAria: "Koma sama",
+};

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+import { LanguageProvider } from '@/lib/i18n/LanguageProvider';
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL, SITE_NAME } from '@/lib/site';
 
@@ -62,8 +63,10 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
         <ThemeProvider>
-          {children}
-          <Toaster position="top-center" richColors />
+          <LanguageProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

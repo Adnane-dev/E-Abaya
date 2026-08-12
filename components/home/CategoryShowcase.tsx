@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { scrollReveal, staggerDelay } from "@/lib/motion";
 import { createClient } from "@/lib/supabase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface Category {
   id: number;
@@ -15,6 +16,7 @@ interface Category {
 const SPANS = ["lg:col-span-2 lg:row-span-2", "", "", "lg:col-span-2"];
 
 export function CategoryShowcase() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function CategoryShowcase() {
     <div className="bg-secondary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <h2 className="font-serif text-3xl font-bold text-foreground mb-10 text-center">
-          Nos univers
+          {t.home.categoriesShowcase.heading}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-6">
           {categories.map((category, i) => (
@@ -44,7 +46,7 @@ export function CategoryShowcase() {
             >
               <Link
                 href={`/category/${category.slug}`}
-                aria-label={`Découvrir ${category.name}`}
+                aria-label={t.home.categoriesShowcase.discover(category.name)}
                 className="group relative flex h-full min-h-[220px] items-center justify-center overflow-hidden rounded-lg bg-primary shadow-md hover:shadow-xl transition-shadow duration-300"
               >
                 <div

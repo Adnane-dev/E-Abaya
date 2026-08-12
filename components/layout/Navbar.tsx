@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   Bell,
+  Languages,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +23,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getCart, onCartUpdate } from "@/lib/cart";
 import { createClient } from "@/lib/supabase";
 import { getUnseenOrderCount } from "@/lib/orderNotifications";
-import { STATUS_LABELS } from "@/lib/orderStatus";
+import { getStatusLabel } from "@/lib/orderStatus";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { LOCALES, LOCALE_LABELS, Locale } from "@/lib/i18n/locales";
 
 type OrderStatusRow = { id: number; status: string };
 
@@ -31,13 +34,6 @@ interface AccountState {
   email: string;
   role: AccountRole;
 }
-
-const ROLE_LABELS: Record<AccountRole, string> = {
-  admin: "Admin",
-  courier: "Livreur",
-  vendor: "Vendeur",
-  customer: "Compte",
-};
 
 // Define TypeScript interfaces
 interface Subcategory {
@@ -54,6 +50,7 @@ interface Category {
 export const Navbar: React.FC = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { t, locale, setLocale } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -64,11 +61,17 @@ export const Navbar: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [account, setAccount] = useState<AccountState | null>(null);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const localeRef = useRef(locale);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    localeRef.current = locale;
+  }, [locale]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -133,7 +136,7 @@ export const Navbar: React.FC = () => {
           { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${userData.user.id}` },
           (payload) => {
             const updated = payload.new as OrderStatusRow;
-            toast.info(`Votre commande n° ${updated.id} est maintenant : ${STATUS_LABELS[updated.status] ?? updated.status}`);
+            toast.info(`Votre commande n° ${updated.id} est maintenant : ${getStatusLabel(updated.status, localeRef.current)}`);
             setOrderNotifCount((count) => count + 1);
           }
         )
@@ -236,36 +239,36 @@ export const Navbar: React.FC = () => {
 
   const navigationCategories: Category[] = [
     {
-      title: "Hijab",
+      title: t.nav.categories.hijab,
       href: "/category/hijab",
       subcategories: [
-        { title: "Classique", href: "/category/hijab?style=classique" },
-        { title: "Moderne", href: "/category/hijab?style=moderne" },
-        { title: "Hijab de sport", href: "/category/hijab-sport" },
+        { title: t.nav.categories.hijabClassic, href: "/category/hijab?style=classique" },
+        { title: t.nav.categories.hijabModern, href: "/category/hijab?style=moderne" },
+        { title: t.nav.categories.hijabSport, href: "/category/hijab-sport" },
       ],
     },
     {
-      title: "Jilbab/Abaya",
+      title: t.nav.categories.abaya,
       href: "/category/abaya",
       subcategories: [
-        { title: "Styles", href: "/category/abaya?style=classique" },
-        { title: "Abayas longues", href: "/category/abayas-longues" },
+        { title: t.nav.categories.abayaStyles, href: "/category/abaya?style=classique" },
+        { title: t.nav.categories.abayaLong, href: "/category/abayas-longues" },
       ],
     },
     {
-      title: "Kaftans",
+      title: t.nav.categories.kaftans,
       href: "/category/kaftans",
       subcategories: [
-        { title: "Cérémonie", href: "/category/kaftans?style=ceremonie" },
-        { title: "Quotidien", href: "/category/kaftans?style=quotidien" },
+        { title: t.nav.categories.kaftansCeremony, href: "/category/kaftans?style=ceremonie" },
+        { title: t.nav.categories.kaftansDaily, href: "/category/kaftans?style=quotidien" },
       ],
     },
     {
-      title: "Robe",
+      title: t.nav.categories.robe,
       href: "/category/robe",
       subcategories: [
-        { title: "Formelles", href: "/category/robe?style=formelles" },
-        { title: "Occasions", href: "/category/robe?style=occasions" },
+        { title: t.nav.categories.robeFormal, href: "/category/robe?style=formelles" },
+        { title: t.nav.categories.robeOccasions, href: "/category/robe?style=occasions" },
       ],
     },
   ];
@@ -293,7 +296,7 @@ export const Navbar: React.FC = () => {
               href="/collections"
               className="px-4 py-2 text-foreground/80 hover:text-accent transition-colors"
             >
-              Toutes les collections
+              {t.nav.allCollections}
             </Link>
           </div>
 
@@ -307,7 +310,7 @@ export const Navbar: React.FC = () => {
               >
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder={`${t.nav.searchAria}...`}
                   className={`${
                     isSearchOpen ? "w-full px-4" : "w-0"
                   } h-10 rounded-full bg-muted transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent`}
@@ -317,19 +320,58 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   className="absolute right-0 p-2 text-foreground/70 hover:text-accent transition-colors"
-                  aria-label="Rechercher"
+                  aria-label={t.nav.searchAria}
                 >
                   <Search className="h-5 w-5" />
                 </button>
               </motion.div>
             </div>
 
+            {/* Language switcher */}
+            {isMounted && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsLangMenuOpen((open) => !open)}
+                  className="relative p-2 text-foreground/70 hover:text-accent transition-colors"
+                  aria-label={t.nav.languageAria}
+                >
+                  <Languages className="h-5 w-5" />
+                </button>
+                <AnimatePresence>
+                  {isLangMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-36 bg-popover rounded-lg shadow-xl border border-border py-2 z-50"
+                    >
+                      {LOCALES.map((code) => (
+                        <button
+                          key={code}
+                          onClick={() => {
+                            setLocale(code as Locale);
+                            setIsLangMenuOpen(false);
+                          }}
+                          className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted hover:text-accent ${
+                            locale === code ? "text-accent font-medium" : "text-foreground/80"
+                          }`}
+                        >
+                          {LOCALE_LABELS[code]}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
             {/* Theme toggle */}
             {isMounted && (
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="relative p-2 text-foreground/70 hover:text-accent transition-colors"
-                aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+                aria-label={theme === "dark" ? t.nav.themeToLight : t.nav.themeToDark}
               >
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
@@ -340,7 +382,7 @@ export const Navbar: React.FC = () => {
               <Link
                 href="/mes-commandes"
                 className="relative p-2 text-foreground/70 hover:text-accent transition-colors"
-                aria-label="Notifications de commandes"
+                aria-label={t.nav.ordersAria}
               >
                 <Bell className="h-5 w-5" />
                 {orderNotifCount > 0 && (
@@ -352,7 +394,7 @@ export const Navbar: React.FC = () => {
             )}
 
             {/* Wishlist */}
-            <Link href="/liste-de-souhaits" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Favoris">
+            <Link href="/liste-de-souhaits" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label={t.nav.wishlistAria}>
               <Heart className="h-5 w-5" />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-accent-foreground bg-accent rounded-full">
@@ -362,7 +404,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Cart */}
-            <Link href="/checkout" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label="Panier">
+            <Link href="/checkout" className="relative p-2 text-foreground/70 hover:text-accent transition-colors" aria-label={t.nav.cartAria}>
               <ShoppingCart className="h-5 w-5" />
               {cartItems > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-accent-foreground bg-accent rounded-full">
@@ -380,7 +422,7 @@ export const Navbar: React.FC = () => {
                     className="flex items-center gap-2 text-foreground/80 hover:text-accent transition-colors"
                   >
                     <User className="h-5 w-5" />
-                    <span className="text-sm font-medium">{ROLE_LABELS[account.role]}</span>
+                    <span className="text-sm font-medium">{t.nav.roles[account.role]}</span>
                   </button>
                   <AnimatePresence>
                     {isAccountMenuOpen && (
@@ -400,7 +442,7 @@ export const Navbar: React.FC = () => {
                             onClick={() => setIsAccountMenuOpen(false)}
                             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                           >
-                            Tableau de bord admin
+                            {t.nav.menu.adminDashboard}
                           </Link>
                         )}
                         {account.role === "courier" && (
@@ -409,7 +451,7 @@ export const Navbar: React.FC = () => {
                             onClick={() => setIsAccountMenuOpen(false)}
                             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                           >
-                            Mes livraisons
+                            {t.nav.menu.myDeliveries}
                           </Link>
                         )}
                         {account.role === "vendor" && (
@@ -418,7 +460,7 @@ export const Navbar: React.FC = () => {
                             onClick={() => setIsAccountMenuOpen(false)}
                             className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                           >
-                            Mon espace vendeur
+                            {t.nav.menu.myShop}
                           </Link>
                         )}
                         {account.role === "customer" && (
@@ -428,14 +470,14 @@ export const Navbar: React.FC = () => {
                               onClick={() => setIsAccountMenuOpen(false)}
                               className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                             >
-                              Devenir vendeur
+                              {t.nav.menu.becomeVendor}
                             </Link>
                             <Link
                               href="/devenir-livreur"
                               onClick={() => setIsAccountMenuOpen(false)}
                               className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                             >
-                              Devenir livreur
+                              {t.nav.menu.becomeCourier}
                             </Link>
                           </>
                         )}
@@ -444,20 +486,20 @@ export const Navbar: React.FC = () => {
                           onClick={() => setIsAccountMenuOpen(false)}
                           className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                         >
-                          Mon compte
+                          {t.nav.menu.myAccount}
                         </Link>
                         <Link
                           href="/mes-commandes"
                           onClick={() => setIsAccountMenuOpen(false)}
                           className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-accent"
                         >
-                          Mes commandes
+                          {t.nav.menu.myOrders}
                         </Link>
                         <button
                           onClick={handleLogout}
                           className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
                         >
-                          Se déconnecter
+                          {t.nav.menu.logout}
                         </button>
                       </motion.div>
                     )}
@@ -466,13 +508,13 @@ export const Navbar: React.FC = () => {
               ) : (
                 <div className="flex items-center space-x-4">
                   <Link href="/auth/login">
-                    <button className="text-foreground/70 hover:text-accent transition-colors" aria-label="Se connecter">
+                    <button className="text-foreground/70 hover:text-accent transition-colors" aria-label={t.nav.login}>
                       <User className="h-5 w-5" />
                     </button>
                   </Link>
                   <Link href="/auth/RegisterPage">
                     <button className="px-6 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors text-sm font-medium shadow-md hover:shadow-lg">
-                      S&apos;inscrire
+                      {t.nav.register}
                     </button>
                   </Link>
                 </div>
@@ -484,7 +526,7 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-foreground/70 hover:text-accent transition-colors"
-            aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-label={isMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -528,33 +570,33 @@ export const Navbar: React.FC = () => {
                 {account ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground truncate">
-                      {ROLE_LABELS[account.role]} — {account.email}
+                      {t.nav.roles[account.role]} — {account.email}
                     </p>
                     {account.role === "admin" && (
                       <Link href="/admin" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
-                        Tableau de bord admin
+                        {t.nav.menu.adminDashboard}
                       </Link>
                     )}
                     {account.role === "courier" && (
                       <Link href="/livreur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
-                        Mes livraisons
+                        {t.nav.menu.myDeliveries}
                       </Link>
                     )}
                     {(account.role === "vendor" || account.role === "customer") && (
                       <Link href="/vendeur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
-                        {account.role === "vendor" ? "Mon espace vendeur" : "Devenir vendeur"}
+                        {account.role === "vendor" ? t.nav.menu.myShop : t.nav.menu.becomeVendor}
                       </Link>
                     )}
                     {account.role === "customer" && (
                       <Link href="/devenir-livreur" onClick={() => setIsMenuOpen(false)} className="block text-accent py-1 font-medium">
-                        Devenir livreur
+                        {t.nav.menu.becomeCourier}
                       </Link>
                     )}
                     <Link href="/mon-compte" onClick={() => setIsMenuOpen(false)} className="block text-foreground/80 py-1">
-                      Mon compte
+                      {t.nav.menu.myAccount}
                     </Link>
                     <Link href="/mes-commandes" onClick={() => setIsMenuOpen(false)} className="block text-foreground/80 py-1">
-                      Mes commandes
+                      {t.nav.menu.myOrders}
                     </Link>
                     <button
                       onClick={() => {
@@ -563,16 +605,16 @@ export const Navbar: React.FC = () => {
                       }}
                       className="text-destructive py-1"
                     >
-                      Se déconnecter
+                      {t.nav.menu.logout}
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-4">
                     <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-foreground/80 py-2">
-                      Se connecter
+                      {t.nav.login}
                     </Link>
                     <Link href="/auth/RegisterPage" onClick={() => setIsMenuOpen(false)} className="text-accent py-2 font-medium">
-                      S&apos;inscrire
+                      {t.nav.register}
                     </Link>
                   </div>
                 )}

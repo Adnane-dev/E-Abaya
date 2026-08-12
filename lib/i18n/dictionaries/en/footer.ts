@@ -1,0 +1,26 @@
+import { FooterDict } from "../types";
+
+export const footer: FooterDict = {
+  shopHeading: "Shop",
+  newArrivals: "New arrivals",
+  abayas: "Abayas",
+  hijabs: "Hijabs",
+  kaftans: "Kaftans",
+  dresses: "Dresses",
+  helpHeading: "Help",
+  shipping: "Shipping",
+  returns: "Returns",
+  sizing: "Size guide",
+  contact: "Contact us",
+  aboutHeading: "About",
+  ourStory: "Our story",
+  designers: "Our designers",
+  sustainability: "Sustainability",
+  careers: "Careers",
+  joinHeading: "Join us",
+  becomeVendor: "Become a vendor",
+  becomeCourier: "Become a courier",
+  followHeading: "Follow us",
+  copyright: (year) => `© ${year} Islamic Style-Girls. All rights reserved.`,
+  backToTopAria: "Back to top",
+};

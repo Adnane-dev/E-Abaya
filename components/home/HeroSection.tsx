@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { fadeUp, fadeUpTransition, staggerDelay } from "@/lib/motion";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <section
       className="relative overflow-hidden bg-primary text-primary-foreground"
       role="banner"
-      aria-label="Présentation de la boutique Islamic Style-Girls"
+      aria-label={t.home.hero.ariaLabel}
     >
       {/* Decorative gradient wash — swap for a real photo later via a bg-image prop */}
       <div
@@ -28,7 +31,7 @@ export function HeroSection() {
           transition={fadeUpTransition}
           className="uppercase tracking-[0.2em] text-sm text-accent font-medium mb-4"
         >
-          Mode modeste, Afrique &amp; monde arabe
+          {t.home.hero.kicker}
         </motion.p>
 
         <motion.h1
@@ -38,7 +41,7 @@ export function HeroSection() {
           transition={{ ...fadeUpTransition, ...staggerDelay(1) }}
           className="font-serif text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
         >
-          L&apos;élégance voilée, réinventée
+          {t.home.hero.title}
         </motion.h1>
 
         <motion.p
@@ -48,8 +51,7 @@ export function HeroSection() {
           transition={{ ...fadeUpTransition, ...staggerDelay(2) }}
           className="mt-6 text-lg sm:text-xl text-primary-foreground/70 max-w-2xl mx-auto"
         >
-          Abayas, hijabs, kaftans et robes soigneusement sélectionnés, entre
-          héritage africain et raffinement arabe.
+          {t.home.hero.subtitle}
         </motion.p>
 
         <motion.div
@@ -63,13 +65,13 @@ export function HeroSection() {
             href="/category/new-arrivals"
             className="inline-block bg-accent py-3 px-8 rounded-md text-base font-medium text-accent-foreground hover:bg-accent/90 transition duration-300 shadow-lg"
           >
-            Voir les nouveautés
+            {t.home.hero.ctaPrimary}
           </Link>
           <Link
             href="/about"
             className="inline-block py-3 px-8 rounded-md text-base font-medium text-primary-foreground border border-primary-foreground/30 hover:border-accent hover:text-accent transition duration-300"
           >
-            Notre histoire
+            {t.home.hero.ctaSecondary}
           </Link>
         </motion.div>
       </div>

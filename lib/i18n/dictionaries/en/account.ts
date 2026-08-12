@@ -44,6 +44,11 @@ export const account: AccountDict = {
     loginSuffix: "to see your wishlist.",
     empty: "You don't have any wishlist items yet.",
     discoverProducts: "Discover our products →",
+    loginToSave: "Sign in to add items to your wishlist.",
+    added: "Added to wishlist.",
+    removed: "Removed from wishlist.",
+    addAria: "Add to wishlist",
+    removeAria: "Remove from wishlist",
   },
   becomeCourier: {
     title: "Become a courier",

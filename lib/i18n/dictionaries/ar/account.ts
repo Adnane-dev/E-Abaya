@@ -44,6 +44,11 @@ export const account: AccountDict = {
     loginSuffix: "لعرض مفضلاتك.",
     empty: "لا توجد عناصر في مفضلاتك حتى الآن.",
     discoverProducts: "اكتشفي منتجاتنا ←",
+    loginToSave: "سجّلي الدخول لإضافة عناصر إلى مفضلاتك.",
+    added: "تمت الإضافة إلى المفضلة.",
+    removed: "تمت الإزالة من المفضلة.",
+    addAria: "إضافة إلى المفضلة",
+    removeAria: "إزالة من المفضلة",
   },
   becomeCourier: {
     title: "كن عامل توصيل",

@@ -44,6 +44,11 @@ export const account: AccountDict = {
     loginSuffix: "domin ganin abubuwan da kike so.",
     empty: "Babu abin da kike so a jera tukuna.",
     discoverProducts: "Bincika kayayyakinmu →",
+    loginToSave: "Shiga domin ƴara kaya cikin abin da kike so.",
+    added: "An ƴara cikin abin da kike so.",
+    removed: "An cire daga abin da kike so.",
+    addAria: "Ƴara cikin abin da nake so",
+    removeAria: "Cire daga abin da nake so",
   },
   becomeCourier: {
     title: "Zama mai kaiwa",

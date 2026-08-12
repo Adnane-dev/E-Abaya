@@ -8,5 +8,6 @@ import { staticPages } from "./staticPages";
 import { checkout } from "./checkout";
 import { account } from "./account";
 import { auth } from "./auth";
+import { offline } from "./offline";
 
-export const fr = { common, nav, footer, home, products, search, staticPages, checkout, account, auth };
+export const fr = { common, nav, footer, home, products, search, staticPages, checkout, account, auth, offline };

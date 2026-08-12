@@ -11,6 +11,7 @@ import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
 import { CartItem, getCart, getCartTotal, updateQuantity, removeFromCart, clearCart, onCartUpdate } from "@/lib/cart";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { enqueue } from "@/lib/offlineQueue";
 
 type PaymentMethod = "cod" | "mobile_money";
 
@@ -66,20 +67,34 @@ export default function CheckoutPage() {
       return;
     }
 
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert({
-        user_id: userData.user.id,
-        items: cart,
-        total,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        delivery_address: deliveryAddress,
-        payment_method: paymentMethod,
-        payment_reference: paymentMethod === "mobile_money" ? paymentReference : null,
-      })
-      .select("id")
-      .single();
+    const orderPayload = {
+      user_id: userData.user.id,
+      items: cart,
+      total,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      delivery_address: deliveryAddress,
+      payment_method: paymentMethod,
+      payment_reference: paymentMethod === "mobile_money" ? paymentReference : null,
+    } as const;
+
+    const wasOffline = !navigator.onLine;
+    const { data: order, error } = await supabase.from("orders").insert(orderPayload).select("id").single();
+
+    // Network failures (offline, or the fetch itself failing mid-request
+    // on a flaky connection) get queued for automatic retry instead of
+    // shown as a hard error — a real validation/DB error still surfaces
+    // normally. There's no order.id yet since nothing was inserted, so
+    // we can't route to /commande/[id] like the success path does.
+    const looksLikeNetworkError = wasOffline || (error && /fetch|network/i.test(error.message));
+    if ((error || !order) && looksLikeNetworkError) {
+      enqueue({ type: "checkout_order", payload: orderPayload });
+      setIsSubmitting(false);
+      clearCart();
+      toast.success(t.offline.checkoutQueued);
+      router.push("/mes-commandes");
+      return;
+    }
 
     if (error || !order) {
       setIsSubmitting(false);

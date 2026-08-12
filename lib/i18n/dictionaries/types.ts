@@ -231,6 +231,11 @@ export interface AccountDict {
     loginSuffix: string;
     empty: string;
     discoverProducts: string;
+    loginToSave: string;
+    added: string;
+    removed: string;
+    addAria: string;
+    removeAria: string;
   };
   becomeCourier: {
     title: string;
@@ -285,6 +290,19 @@ export interface AuthDict {
       passwordMismatch: string;
     };
   };
+}
+
+export interface OfflineDict {
+  indicator: (pendingCount: number) => string;
+  offlinePage: {
+    title: string;
+    message: string;
+    retry: string;
+  };
+  checkoutQueued: string;
+  wishlistQueuedAdd: string;
+  wishlistQueuedRemove: string;
+  syncSuccess: (count: number) => string;
 }
 
 export interface HomeDict {

@@ -26,6 +26,7 @@ import { getStatusLabel } from "@/lib/orderStatus";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LOCALES, LOCALE_LABELS, Locale } from "@/lib/i18n/locales";
 import { GlobalSearch } from "./GlobalSearch";
+import { OfflineIndicator } from "./OfflineIndicator";
 
 type OrderStatusRow = { id: number; status: string };
 
@@ -302,6 +303,9 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center space-x-6">
             {/* Search */}
             <GlobalSearch />
+
+            {/* Offline / pending sync indicator */}
+            {isMounted && <OfflineIndicator />}
 
             {/* Language switcher */}
             {isMounted && (

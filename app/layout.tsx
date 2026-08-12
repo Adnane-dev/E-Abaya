@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LanguageProvider } from '@/lib/i18n/LanguageProvider';
+import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL, SITE_NAME } from '@/lib/site';
 
@@ -66,6 +67,7 @@ export default async function RootLayout({
           <LanguageProvider>
             {children}
             <Toaster position="top-center" richColors />
+            <ServiceWorkerRegister />
           </LanguageProvider>
         </ThemeProvider>
       </body>

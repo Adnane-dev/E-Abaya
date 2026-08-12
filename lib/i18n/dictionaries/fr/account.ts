@@ -44,6 +44,11 @@ export const account: AccountDict = {
     loginSuffix: "pour voir vos favoris.",
     empty: "Vous n'avez pas encore de favoris.",
     discoverProducts: "Découvrir nos produits →",
+    loginToSave: "Connectez-vous pour ajouter un article à vos favoris.",
+    added: "Ajouté aux favoris.",
+    removed: "Retiré des favoris.",
+    addAria: "Ajouter aux favoris",
+    removeAria: "Retirer des favoris",
   },
   becomeCourier: {
     title: "Devenir livreur",

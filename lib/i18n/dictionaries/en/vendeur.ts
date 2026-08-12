@@ -1,0 +1,50 @@
+import { VendeurDict } from "../types";
+
+export const vendeur: VendeurDict = {
+  dashboard: {
+    welcome: (name) => `Welcome, ${name}`,
+    approved: "Your shop is approved and visible on the site.",
+    pending: "Your shop is awaiting approval from our team. You can already prepare your products.",
+    productsOnline: "Products online",
+  },
+  signup: {
+    title: "Create your shop",
+    intro: "Your shop will be visible on the site once your identity is verified and your shop is approved by our team.",
+    shopName: "Shop name",
+    description: "Description",
+    idDocumentLabel: "ID document (ID card, passport...)",
+    idDocumentNote: "Used only to verify your identity before approval. Visible only to you and our team.",
+    chooseFile: "Choose a file",
+    submit: "Create my shop",
+    submitting: "Creating…",
+    missingDocument: "Please attach an ID document.",
+    uploadError: (message) => `Failed to upload document: ${message}`,
+    createError: (message) => `Error creating shop: ${message}`,
+    successToast: "Shop created! It will be visible once your identity is verified and your shop is approved.",
+  },
+  shop: {
+    title: "My shop",
+    logo: "Logo",
+    chooseImage: "Choose an image",
+    uploading: "Uploading…",
+    shopName: "Shop name",
+    description: "Description",
+    publicPage: "Public page:",
+    save: "Save",
+    saving: "Saving…",
+    uploadError: (message) => `Upload failed: ${message}`,
+    saveError: (message) => `Error while saving: ${message}`,
+    updatedToast: "Shop updated.",
+  },
+  orders: {
+    title: "Orders for my products",
+    noOrders: "No orders containing your products yet.",
+    orderNumber: (id) => `Order #${id}`,
+    subtotal: "Subtotal (your products)",
+    customerLabel: (name, phone) => `Customer: ${name} — ${phone}`,
+    deliveryLabel: (address) => `Delivery: ${address}`,
+  },
+  products: {
+    shopNotFound: "Shop not found.",
+  },
+};

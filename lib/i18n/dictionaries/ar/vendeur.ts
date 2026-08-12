@@ -1,0 +1,50 @@
+import { VendeurDict } from "../types";
+
+export const vendeur: VendeurDict = {
+  dashboard: {
+    welcome: (name) => `مرحبًا، ${name}`,
+    approved: "تمت الموافقة على متجرك وهو مرئي على الموقع.",
+    pending: "متجرك في انتظار موافقة فريقنا. يمكنك بالفعل تحضير منتجاتك.",
+    productsOnline: "المنتجات المنشورة",
+  },
+  signup: {
+    title: "أنشئي متجرك",
+    intro: "سيكون متجرك مرئيًا على الموقع بعد التحقق من هويتك وموافقة فريقنا على متجرك.",
+    shopName: "اسم المتجر",
+    description: "الوصف",
+    idDocumentLabel: "وثيقة الهوية (بطاقة الهوية، جواز السفر...)",
+    idDocumentNote: "تُستخدم فقط للتحقق من هويتك قبل الموافقة. مرئية لك ولفريقنا فقط.",
+    chooseFile: "اختيار ملف",
+    submit: "إنشاء متجري",
+    submitting: "جارٍ الإنشاء…",
+    missingDocument: "يرجى إرفاق وثيقة هوية.",
+    uploadError: (message) => `فشل إرسال الوثيقة: ${message}`,
+    createError: (message) => `خطأ في إنشاء المتجر: ${message}`,
+    successToast: "تم إنشاء المتجر! سيكون مرئيًا بعد التحقق من هويتك وموافقة فريقنا على متجرك.",
+  },
+  shop: {
+    title: "متجري",
+    logo: "الشعار",
+    chooseImage: "اختيار صورة",
+    uploading: "جارٍ الإرسال…",
+    shopName: "اسم المتجر",
+    description: "الوصف",
+    publicPage: "الصفحة العامة:",
+    save: "حفظ",
+    saving: "جارٍ الحفظ…",
+    uploadError: (message) => `فشل الإرسال: ${message}`,
+    saveError: (message) => `خطأ في الحفظ: ${message}`,
+    updatedToast: "تم تحديث المتجر.",
+  },
+  orders: {
+    title: "طلبات منتجاتي",
+    noOrders: "لا توجد طلبات تحتوي على منتجاتك حتى الآن.",
+    orderNumber: (id) => `الطلب رقم ${id}`,
+    subtotal: "المجموع الفرعي (منتجاتك)",
+    customerLabel: (name, phone) => `العميلة: ${name} — ${phone}`,
+    deliveryLabel: (address) => `التوصيل: ${address}`,
+  },
+  products: {
+    shopNotFound: "المتجر غير موجود.",
+  },
+};

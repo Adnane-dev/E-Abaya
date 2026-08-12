@@ -322,6 +322,55 @@ export interface LivreurDict {
   markedDeliveredToast: string;
 }
 
+export interface VendeurDict {
+  dashboard: {
+    welcome: (name: string) => string;
+    approved: string;
+    pending: string;
+    productsOnline: string;
+  };
+  signup: {
+    title: string;
+    intro: string;
+    shopName: string;
+    description: string;
+    idDocumentLabel: string;
+    idDocumentNote: string;
+    chooseFile: string;
+    submit: string;
+    submitting: string;
+    missingDocument: string;
+    uploadError: (message: string) => string;
+    createError: (message: string) => string;
+    successToast: string;
+  };
+  shop: {
+    title: string;
+    logo: string;
+    chooseImage: string;
+    uploading: string;
+    shopName: string;
+    description: string;
+    publicPage: string;
+    save: string;
+    saving: string;
+    uploadError: (message: string) => string;
+    saveError: (message: string) => string;
+    updatedToast: string;
+  };
+  orders: {
+    title: string;
+    noOrders: string;
+    orderNumber: (id: number) => string;
+    subtotal: string;
+    customerLabel: (name: string, phone: string) => string;
+    deliveryLabel: (address: string) => string;
+  };
+  products: {
+    shopNotFound: string;
+  };
+}
+
 export interface HomeDict {
   hero: {
     ariaLabel: string;

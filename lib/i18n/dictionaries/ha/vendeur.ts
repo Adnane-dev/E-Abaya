@@ -1,0 +1,50 @@
+import { VendeurDict } from "../types";
+
+export const vendeur: VendeurDict = {
+  dashboard: {
+    welcome: (name) => `Barka da zuwa, ${name}`,
+    approved: "An tabbatar da shagon ki kuma yana bayyana a shafin.",
+    pending: "Shagon ki na jiran tabbatarwa daga kungiyarmu. Za ki iya shirya kayanki tuni.",
+    productsOnline: "Kayayyaki a shafin",
+  },
+  signup: {
+    title: "Kirkiro shagon ki",
+    intro: "Shagon ki zai bayyana a shafin da zarar an tabbatar da asalinki kuma an amince da shagon ki daga kungiyarmu.",
+    shopName: "Sunan shago",
+    description: "Bayani",
+    idDocumentLabel: "Takardar shaida (katin shaida, fasfo...)",
+    idDocumentNote: "Ana amfani da ita kawai don tabbatar da asalinki kafin amincewa. Ke da kungiyarmu kawai za ku iya ganin ta.",
+    chooseFile: "Zaɓi fayil",
+    submit: "Kirkiro shagona",
+    submitting: "Ana kirkirowa…",
+    missingDocument: "Da fatan za ki liƴa takardar shaida.",
+    uploadError: (message) => `An kasa turo takarda: ${message}`,
+    createError: (message) => `Kuskure wajen kirkirar shago: ${message}`,
+    successToast: "An kirkiri shago! Zai bayyana da zarar an tabbatar da asalinki kuma an amince da shagon.",
+  },
+  shop: {
+    title: "Shagona",
+    logo: "Alama",
+    chooseImage: "Zaɓi hoto",
+    uploading: "Ana turawa…",
+    shopName: "Sunan shago",
+    description: "Bayani",
+    publicPage: "Shafi na jama'a:",
+    save: "Ajiye",
+    saving: "Ana ajiyewa…",
+    uploadError: (message) => `An kasa aikawa: ${message}`,
+    saveError: (message) => `Kuskure wajen ajiyewa: ${message}`,
+    updatedToast: "An sabunta shagon.",
+  },
+  orders: {
+    title: "Odar kayayyakina",
+    noOrders: "Babu oda mai dauke da kayanki tukuna.",
+    orderNumber: (id) => `Oda lamba ${id}`,
+    subtotal: "Jumla (kayanki)",
+    customerLabel: (name, phone) => `Abokin ciniki: ${name} — ${phone}`,
+    deliveryLabel: (address) => `Isar da kaya: ${address}`,
+  },
+  products: {
+    shopNotFound: "Ba a samu shago ba.",
+  },
+};

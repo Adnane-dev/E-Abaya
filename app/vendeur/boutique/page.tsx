@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface Shop {
   id: number;
@@ -14,6 +15,7 @@ interface Shop {
 }
 
 export default function VendorShopPage() {
+  const { t } = useTranslation();
   const [shop, setShop] = useState<Shop | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -49,7 +51,7 @@ export default function VendorShopPage() {
     const path = `logos/${Date.now()}-${file.name}`;
     const { error } = await supabase.storage.from("product-images").upload(path, file);
     if (error) {
-      toast.error("Échec de l'envoi : " + error.message);
+      toast.error(t.vendeur.shop.uploadError(error.message));
       setIsUploading(false);
       return;
     }
@@ -72,30 +74,30 @@ export default function VendorShopPage() {
     setIsSaving(false);
 
     if (error) {
-      toast.error("Erreur lors de l'enregistrement : " + error.message);
+      toast.error(t.vendeur.shop.saveError(error.message));
       return;
     }
-    toast.success("Boutique mise à jour.");
+    toast.success(t.vendeur.shop.updatedToast);
   }
 
   if (!shop) {
-    return <p className="text-muted-foreground">Chargement…</p>;
+    return <p className="text-muted-foreground">{t.common.loading}</p>;
   }
 
   return (
     <div className="max-w-xl mx-auto">
-      <h1 className="font-serif text-2xl font-bold text-foreground mb-6">Ma boutique</h1>
+      <h1 className="font-serif text-2xl font-bold text-foreground mb-6">{t.vendeur.shop.title}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-6 shadow-sm">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Logo</label>
+          <label className="block text-sm font-medium text-foreground mb-2">{t.vendeur.shop.logo}</label>
           <div className="flex items-center gap-4">
             {logoUrl && (
               <img src={logoUrl} alt="Logo" className="h-16 w-16 rounded-full object-cover bg-muted" />
             )}
             <label className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted">
               <Upload className="h-4 w-4" />
-              {isUploading ? "Envoi…" : "Choisir une image"}
+              {isUploading ? t.vendeur.shop.uploading : t.vendeur.shop.chooseImage}
               <input
                 type="file"
                 accept="image/*"
@@ -108,7 +110,7 @@ export default function VendorShopPage() {
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-foreground">
-            Nom de la boutique
+            {t.vendeur.shop.shopName}
           </label>
           <input
             id="name"
@@ -121,7 +123,7 @@ export default function VendorShopPage() {
 
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-foreground">
-            Description
+            {t.vendeur.shop.description}
           </label>
           <textarea
             id="description"
@@ -133,7 +135,7 @@ export default function VendorShopPage() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Page publique :{" "}
+          {t.vendeur.shop.publicPage}{" "}
           <a href={`/boutique/${shop.slug}`} className="text-accent underline">
             /boutique/{shop.slug}
           </a>
@@ -144,7 +146,7 @@ export default function VendorShopPage() {
           disabled={isSaving}
           className="px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90 disabled:opacity-60"
         >
-          {isSaving ? "Enregistrement…" : "Enregistrer"}
+          {isSaving ? t.vendeur.shop.saving : t.vendeur.shop.save}
         </button>
       </form>
     </div>

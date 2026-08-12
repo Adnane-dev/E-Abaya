@@ -10,5 +10,6 @@ import { account } from "./account";
 import { auth } from "./auth";
 import { offline } from "./offline";
 import { livreur } from "./livreur";
+import { vendeur } from "./vendeur";
 
-export const ha = { common, nav, footer, home, products, search, staticPages, checkout, account, auth, offline, livreur };
+export const ha = { common, nav, footer, home, products, search, staticPages, checkout, account, auth, offline, livreur, vendeur };

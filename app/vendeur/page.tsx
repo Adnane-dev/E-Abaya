@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface ShopSummary {
   name: string;
@@ -10,6 +11,7 @@ interface ShopSummary {
 }
 
 export default function VendorDashboard() {
+  const { t } = useTranslation();
   const [shop, setShop] = useState<ShopSummary | null>(null);
   const [productCount, setProductCount] = useState<number | null>(null);
 
@@ -38,12 +40,12 @@ export default function VendorDashboard() {
   }, []);
 
   if (!shop) {
-    return <p className="text-muted-foreground">Chargement…</p>;
+    return <p className="text-muted-foreground">{t.common.loading}</p>;
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="font-serif text-2xl font-bold text-foreground">Bienvenue, {shop.name}</h1>
+      <h1 className="font-serif text-2xl font-bold text-foreground">{t.vendeur.dashboard.welcome(shop.name)}</h1>
 
       <div
         className={`flex items-center gap-3 p-4 rounded-lg border ${
@@ -53,15 +55,11 @@ export default function VendorDashboard() {
         }`}
       >
         {shop.is_approved ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
-        <span>
-          {shop.is_approved
-            ? "Votre boutique est validée et visible sur le site."
-            : "Votre boutique est en attente de validation par l'équipe. Vous pouvez déjà préparer vos produits."}
-        </span>
+        <span>{shop.is_approved ? t.vendeur.dashboard.approved : t.vendeur.dashboard.pending}</span>
       </div>
 
       <div className="bg-card border border-border rounded-lg p-6">
-        <p className="text-sm text-muted-foreground">Produits en ligne</p>
+        <p className="text-sm text-muted-foreground">{t.vendeur.dashboard.productsOnline}</p>
         <p className="text-2xl font-bold text-foreground">{productCount ?? "…"}</p>
       </div>
     </div>

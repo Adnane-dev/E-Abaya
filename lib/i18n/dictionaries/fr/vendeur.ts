@@ -1,0 +1,50 @@
+import { VendeurDict } from "../types";
+
+export const vendeur: VendeurDict = {
+  dashboard: {
+    welcome: (name) => `Bienvenue, ${name}`,
+    approved: "Votre boutique est validée et visible sur le site.",
+    pending: "Votre boutique est en attente de validation par l'équipe. Vous pouvez déjà préparer vos produits.",
+    productsOnline: "Produits en ligne",
+  },
+  signup: {
+    title: "Créer votre boutique",
+    intro: "Votre boutique sera visible sur le site une fois votre identité vérifiée et votre boutique validée par notre équipe.",
+    shopName: "Nom de la boutique",
+    description: "Description",
+    idDocumentLabel: "Pièce d'identité (carte d'identité, passeport...)",
+    idDocumentNote: "Utilisée uniquement pour vérifier votre identité avant validation. Visible par vous et notre équipe uniquement.",
+    chooseFile: "Choisir un fichier",
+    submit: "Créer ma boutique",
+    submitting: "Création…",
+    missingDocument: "Merci de joindre une pièce d'identité.",
+    uploadError: (message) => `Échec de l'envoi du document : ${message}`,
+    createError: (message) => `Erreur lors de la création de la boutique : ${message}`,
+    successToast: "Boutique créée ! Elle sera visible une fois votre identité vérifiée et votre boutique validée.",
+  },
+  shop: {
+    title: "Ma boutique",
+    logo: "Logo",
+    chooseImage: "Choisir une image",
+    uploading: "Envoi…",
+    shopName: "Nom de la boutique",
+    description: "Description",
+    publicPage: "Page publique :",
+    save: "Enregistrer",
+    saving: "Enregistrement…",
+    uploadError: (message) => `Échec de l'envoi : ${message}`,
+    saveError: (message) => `Erreur lors de l'enregistrement : ${message}`,
+    updatedToast: "Boutique mise à jour.",
+  },
+  orders: {
+    title: "Commandes de mes produits",
+    noOrders: "Aucune commande contenant vos produits pour le moment.",
+    orderNumber: (id) => `Commande n° ${id}`,
+    subtotal: "Sous-total (vos produits)",
+    customerLabel: (name, phone) => `Client : ${name} — ${phone}`,
+    deliveryLabel: (address) => `Livraison : ${address}`,
+  },
+  products: {
+    shopNotFound: "Boutique introuvable.",
+  },
+};

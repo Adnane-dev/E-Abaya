@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { ProductManager } from "@/components/admin/ProductManager";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function VendorProductsPage() {
+  const { t } = useTranslation();
   const [shopId, setShopId] = useState<number | null | undefined>(undefined);
 
   useEffect(() => {
@@ -25,10 +27,10 @@ export default function VendorProductsPage() {
   }, []);
 
   if (shopId === undefined) {
-    return <p className="text-muted-foreground">Chargement…</p>;
+    return <p className="text-muted-foreground">{t.common.loading}</p>;
   }
   if (shopId === null) {
-    return <p className="text-muted-foreground">Boutique introuvable.</p>;
+    return <p className="text-muted-foreground">{t.vendeur.products.shopNotFound}</p>;
   }
 
   return <ProductManager shopId={shopId} />;

@@ -3,17 +3,22 @@
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ActiveFilters, Product } from "@/types/product";
-
-const MAX_PRICE = 100000;
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { getColorLabel } from "@/lib/i18n/colorLabels";
 
 interface ProductFiltersProps {
   products: Product[];
   filters: ActiveFilters;
   onChange: (filters: ActiveFilters) => void;
+  onReset: () => void;
+  maxPrice: number;
+  hideCategories?: boolean;
 }
 
-export function ProductFilters({ products, filters, onChange }: ProductFiltersProps) {
+export function ProductFilters({ products, filters, onChange, onReset, maxPrice, hideCategories }: ProductFiltersProps) {
+  const { t, locale } = useTranslation();
   const categories = Array.from(new Set(products.map((p) => p.category)));
   const brands = Array.from(new Set(products.map((p) => p.brand).filter(Boolean)));
   const colors = Array.from(new Set(products.flatMap((p) => p.colors ?? [])));
@@ -21,35 +26,44 @@ export function ProductFilters({ products, filters, onChange }: ProductFiltersPr
 
   return (
     <Card className="p-6 space-y-6 border-border">
-      <div>
-        <h3 className="text-lg font-medium text-foreground mb-4">Catégories</h3>
-        <div className="space-y-2">
-          {categories.map((category) => (
-            <div key={category} className="flex items-center">
-              <Checkbox
-                id={`category-${category}`}
-                checked={filters.categories.includes(category)}
-                onCheckedChange={(checked) => {
-                  const newCategories = checked
-                    ? [...filters.categories, category]
-                    : filters.categories.filter((c) => c !== category);
-                  onChange({ ...filters, categories: newCategories });
-                }}
-              />
-              <label htmlFor={`category-${category}`} className="ml-2 text-sm text-muted-foreground">
-                {category}
-              </label>
-            </div>
-          ))}
-        </div>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium text-foreground">{t.products.filters.title}</h3>
+        <Button variant="ghost" size="sm" onClick={onReset} className="text-muted-foreground hover:text-accent">
+          {t.products.filters.resetButton}
+        </Button>
       </div>
 
+      {!hideCategories && (
+        <div>
+          <h3 className="text-lg font-medium text-foreground mb-4">{t.products.filters.categoriesHeading}</h3>
+          <div className="space-y-2">
+            {categories.map((category) => (
+              <div key={category} className="flex items-center">
+                <Checkbox
+                  id={`category-${category}`}
+                  checked={filters.categories.includes(category)}
+                  onCheckedChange={(checked) => {
+                    const newCategories = checked
+                      ? [...filters.categories, category]
+                      : filters.categories.filter((c) => c !== category);
+                    onChange({ ...filters, categories: newCategories });
+                  }}
+                />
+                <label htmlFor={`category-${category}`} className="ml-2 text-sm text-muted-foreground">
+                  {category}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
-        <h3 className="text-lg font-medium text-foreground mb-4">Budget</h3>
+        <h3 className="text-lg font-medium text-foreground mb-4">{t.products.filters.budgetHeading}</h3>
         <Slider
           value={filters.priceRange}
           min={0}
-          max={MAX_PRICE}
+          max={maxPrice}
           step={1000}
           onValueChange={(value) => onChange({ ...filters, priceRange: value as [number, number] })}
         />
@@ -61,7 +75,7 @@ export function ProductFilters({ products, filters, onChange }: ProductFiltersPr
 
       {brands.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-foreground mb-4">Marques</h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">{t.products.filters.brandsHeading}</h3>
           <div className="space-y-2">
             {brands.map((brand) => (
               <div key={brand} className="flex items-center">
@@ -86,7 +100,7 @@ export function ProductFilters({ products, filters, onChange }: ProductFiltersPr
 
       {colors.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-foreground mb-4">Couleurs</h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">{t.products.filters.colorsHeading}</h3>
           <div className="space-y-2">
             {colors.map((color) => (
               <div key={color} className="flex items-center">
@@ -101,7 +115,7 @@ export function ProductFilters({ products, filters, onChange }: ProductFiltersPr
                   }}
                 />
                 <label htmlFor={`color-${color}`} className="ml-2 text-sm text-muted-foreground">
-                  {color}
+                  {getColorLabel(color, locale)}
                 </label>
               </div>
             ))}
@@ -111,7 +125,7 @@ export function ProductFilters({ products, filters, onChange }: ProductFiltersPr
 
       {sizes.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-foreground mb-4">Tailles</h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">{t.products.filters.sizesHeading}</h3>
           <div className="space-y-2">
             {sizes.map((size) => (
               <div key={size} className="flex items-center">

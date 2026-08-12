@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { SlidersHorizontal } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters } from "@/components/products/ProductFilters";
-import { ProductSort, SortOption } from "@/components/products/ProductSort";
+import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
+import { ProductSort } from "@/components/products/ProductSort";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { createClient } from "@/lib/supabase";
-import { ActiveFilters, Product } from "@/types/product";
+import { useProductFilters } from "@/lib/useProductFilters";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { Product } from "@/types/product";
 
-export default function ProductsPage() {
+function ProductsPageContent() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
-    categories: [],
-    brands: [],
-    colors: [],
-    sizes: [],
-    priceRange: [0, 100000],
-  });
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const { filters, sort, setFilters, setSort, resetFilters, maxPrice } = useProductFilters(products);
 
   useEffect(() => {
     async function loadProducts() {
@@ -35,12 +34,18 @@ export default function ProductsPage() {
     loadProducts();
   }, []);
 
-  const sortedProducts = useMemo(() => {
-    const sorted = [...products];
-    if (sortOption === "price-low") sorted.sort((a, b) => a.price - b.price);
-    if (sortOption === "price-high") sorted.sort((a, b) => b.price - a.price);
-    return sorted;
-  }, [products, sortOption]);
+  const sortedProducts = [...products];
+  if (sort === "price-low") sortedProducts.sort((a, b) => a.price - b.price);
+  if (sort === "price-high") sortedProducts.sort((a, b) => b.price - a.price);
+
+  const visibleCount = sortedProducts.filter((product) => {
+    const isCategoryMatch = filters.categories.length ? filters.categories.includes(product.category) : true;
+    const isBrandMatch = filters.brands.length ? filters.brands.includes(product.brand || "") : true;
+    const isColorMatch = filters.colors.length ? product.colors?.some((c) => filters.colors.includes(c)) : true;
+    const isSizeMatch = filters.sizes.length ? product.sizes?.some((s) => filters.sizes.includes(s)) : true;
+    const isPriceMatch = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
+    return isCategoryMatch && isBrandMatch && isColorMatch && isSizeMatch && isPriceMatch;
+  }).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,25 +57,46 @@ export default function ProductsPage() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          <aside className="w-full md:w-64 flex-shrink-0">
-            <ProductFilters products={products} filters={activeFilters} onChange={setActiveFilters} />
+          <aside className="hidden md:block w-full md:w-64 flex-shrink-0">
+            <ProductFilters products={products} filters={filters} onChange={setFilters} onReset={resetFilters} maxPrice={maxPrice} />
           </aside>
 
           <main className="flex-1">
-            <div className="mb-6 flex items-center justify-between">
-              <h1 className="font-serif text-2xl font-bold text-foreground">Tous les produits</h1>
-              <ProductSort value={sortOption} onChange={setSortOption} />
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h1 className="font-serif text-2xl font-bold text-foreground">{t.products.pageTitle}</h1>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsMobileFiltersOpen(true)}
+                  className="md:hidden px-4 py-2 bg-background border border-border rounded-lg flex items-center gap-2"
+                >
+                  <SlidersHorizontal className="w-5 h-5" />
+                  {t.products.filters.mobileButton}
+                </button>
+                <ProductSort value={sort} onChange={setSort} />
+              </div>
             </div>
             {isLoading ? (
-              <p className="text-center text-muted-foreground py-12">Chargement…</p>
+              <p className="text-center text-muted-foreground py-12">{t.common.loading}</p>
             ) : (
-              <ProductGrid products={sortedProducts} filters={activeFilters} />
+              <ProductGrid products={sortedProducts} filters={filters} />
             )}
           </main>
         </div>
       </div>
 
+      <MobileFilterDrawer isOpen={isMobileFiltersOpen} onClose={() => setIsMobileFiltersOpen(false)} resultCount={visibleCount}>
+        <ProductFilters products={products} filters={filters} onChange={setFilters} onReset={resetFilters} maxPrice={maxPrice} />
+      </MobileFilterDrawer>
+
       <Footer />
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

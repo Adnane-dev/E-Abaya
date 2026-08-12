@@ -78,6 +78,38 @@ export interface FooterDict {
   backToTopAria: string;
 }
 
+export interface ProductsDict {
+  pageTitle: string;
+  filters: {
+    title: string;
+    categoriesHeading: string;
+    budgetHeading: string;
+    brandsHeading: string;
+    colorsHeading: string;
+    sizesHeading: string;
+    resetButton: string;
+    mobileButton: string;
+    closeAria: string;
+    viewResults: (count: number) => string;
+  };
+  sort: {
+    placeholder: string;
+    newest: string;
+    priceLow: string;
+    priceHigh: string;
+  };
+  collectionTitle: (category: string) => string;
+  searchPlaceholder: (category: string) => string;
+  allColors: string;
+  allMaterials: string;
+  allPrices: string;
+  noProductsInCategory: (category: string) => string;
+  noResults: string;
+  inStock: string;
+  outOfStock: string;
+  soldBy: (name: string) => string;
+}
+
 export interface HomeDict {
   hero: {
     ariaLabel: string;

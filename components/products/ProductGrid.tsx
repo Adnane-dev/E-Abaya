@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ProductQuickView } from "./ProductQuickView";
 import { WishlistButton } from "./WishlistButton";
 import { ActiveFilters, Product, getDiscountedPrice } from "@/types/product";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface ProductGridProps {
   products: Product[];
@@ -12,6 +13,7 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products, filters }: ProductGridProps) {
+  const { t } = useTranslation();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const filteredProducts = products.filter((product) => {
@@ -36,7 +38,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <p className="text-center text-muted-foreground py-12">
-        Le catalogue arrive très bientôt — revenez vite !
+        {t.home.featured.empty}
       </p>
     );
   }
@@ -63,6 +65,11 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
                   -{product.discount_percent}%
                 </span>
               )}
+              {!product.in_stock && (
+                <span className="absolute bottom-2 left-2 text-xs font-semibold bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">
+                  {t.products.outOfStock}
+                </span>
+              )}
               <WishlistButton productId={product.id} className="absolute top-2 right-2 p-2 rounded-full bg-background/80 hover:bg-background shadow-sm" />
             </div>
             <div className="p-4">
@@ -81,7 +88,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
                 )}
               </div>
               {product.shops && (
-                <p className="mt-1 text-xs text-muted-foreground">Vendu par {product.shops.name}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t.products.soldBy(product.shops.name)}</p>
               )}
             </div>
           </div>
@@ -90,7 +97,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
 
       {filteredProducts.length === 0 && (
         <p className="text-center text-muted-foreground mt-8">
-          Aucun produit ne correspond à vos filtres.
+          {t.products.noResults}
         </p>
       )}
 

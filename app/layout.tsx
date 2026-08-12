@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LanguageProvider } from '@/lib/i18n/LanguageProvider';
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL, SITE_NAME } from '@/lib/site';
 
@@ -65,7 +66,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
         <ThemeProvider>
           <LanguageProvider>
-            {children}
+            <PageTransition>{children}</PageTransition>
             <Toaster position="top-center" richColors />
             <ServiceWorkerRegister />
           </LanguageProvider>

@@ -23,3 +23,19 @@ export const scrollReveal = {
   variants: fadeUp,
   transition: fadeUpTransition,
 };
+
+// Whole-page crossfade on route change. Kept short and to opacity/transform
+// only (both GPU-composited, cheap even on low-end Android) since Navbar/
+// Footer are rendered per-page rather than in the root layout — they fade
+// along with the content, so a longer or bouncier transition would make
+// every navigation feel sluggish instead of premium.
+export const pageTransition: Variants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+};
+
+export const pageTransitionSettings = {
+  duration: 0.22,
+  ease: EASE_PREMIUM,
+};

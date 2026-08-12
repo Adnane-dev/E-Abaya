@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { ProductQuickView } from "./ProductQuickView";
 import { WishlistButton } from "./WishlistButton";
 import { ActiveFilters, Product, getDiscountedPrice } from "@/types/product";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { scrollReveal, staggerDelay } from "@/lib/motion";
 
 interface ProductGridProps {
   products: Product[];
@@ -46,10 +48,12 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {filteredProducts.map((product) => (
-          <div
+        {filteredProducts.map((product, i) => (
+          <motion.div
             key={product.id}
-            className="group relative rounded-lg border border-border bg-card shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+            {...scrollReveal}
+            transition={{ ...scrollReveal.transition, ...staggerDelay(i % 6, 0.06) }}
+            className="group relative rounded-lg border border-border bg-card shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             onClick={() => setSelectedProduct(product)}
           >
             <div className="relative w-full h-64 rounded-t-lg overflow-hidden bg-muted">
@@ -91,7 +95,7 @@ export function ProductGrid({ products, filters }: ProductGridProps) {
                 <p className="mt-1 text-xs text-muted-foreground">{t.products.soldBy(product.shops.name)}</p>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 

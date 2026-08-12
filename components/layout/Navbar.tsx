@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Heart,
-  Search,
   Menu,
   X,
   User,
@@ -26,6 +25,7 @@ import { getUnseenOrderCount } from "@/lib/orderNotifications";
 import { getStatusLabel } from "@/lib/orderStatus";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LOCALES, LOCALE_LABELS, Locale } from "@/lib/i18n/locales";
+import { GlobalSearch } from "./GlobalSearch";
 
 type OrderStatusRow = { id: number; status: string };
 
@@ -57,8 +57,6 @@ export const Navbar: React.FC = () => {
   const [orderNotifCount, setOrderNotifCount] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [account, setAccount] = useState<AccountState | null>(null);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -303,29 +301,7 @@ export const Navbar: React.FC = () => {
           {/* Search and Icons */}
           <div className="flex items-center space-x-6">
             {/* Search */}
-            <div className="relative">
-              <motion.div
-                animate={isSearchOpen ? { width: 260 } : { width: 40 }}
-                className="flex items-center"
-              >
-                <input
-                  type="text"
-                  placeholder={`${t.nav.searchAria}...`}
-                  className={`${
-                    isSearchOpen ? "w-full px-4" : "w-0"
-                  } h-10 rounded-full bg-muted transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="absolute right-0 p-2 text-foreground/70 hover:text-accent transition-colors"
-                  aria-label={t.nav.searchAria}
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-              </motion.div>
-            </div>
+            <GlobalSearch />
 
             {/* Language switcher */}
             {isMounted && (

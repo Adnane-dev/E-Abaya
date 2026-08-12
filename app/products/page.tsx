@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { SlidersHorizontal, X } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
 import { ProductSort } from "@/components/products/ProductSort";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SearchBar } from "@/components/layout/SearchBar";
 import { createClient } from "@/lib/supabase";
 import { useProductFilters } from "@/lib/useProductFilters";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -16,6 +16,10 @@ import { Product } from "@/types/product";
 
 function ProductsPageContent() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get("search") ?? "";
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -34,9 +38,24 @@ function ProductsPageContent() {
     loadProducts();
   }, []);
 
-  const sortedProducts = [...products];
+  const textFiltered = searchTerm
+    ? products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : products;
+
+  const sortedProducts = [...textFiltered];
   if (sort === "price-low") sortedProducts.sort((a, b) => a.price - b.price);
   if (sort === "price-high") sortedProducts.sort((a, b) => b.price - a.price);
+
+  function clearSearch() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
 
   const visibleCount = sortedProducts.filter((product) => {
     const isCategoryMatch = filters.categories.length ? filters.categories.includes(product.category) : true;
@@ -52,9 +71,14 @@ function ProductsPageContent() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <div className="mb-6">
-          <SearchBar />
-        </div>
+        {searchTerm && (
+          <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <span>{t.search.resultsFor(searchTerm)}</span>
+            <button onClick={clearSearch} className="p-1 hover:text-accent" aria-label={t.common.close}>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-8">
           <aside className="hidden md:block w-full md:w-64 flex-shrink-0">

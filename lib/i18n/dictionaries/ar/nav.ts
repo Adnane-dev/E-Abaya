@@ -1,7 +1,6 @@
 import { NavDict } from "../types";
 
 export const nav: NavDict = {
-  searchAria: "بحث",
   languageAria: "تغيير اللغة",
   themeToLight: "التبديل إلى الوضع الفاتح",
   themeToDark: "التبديل إلى الوضع الداكن",

@@ -8,7 +8,6 @@ export interface CommonDict {
 }
 
 export interface NavDict {
-  searchAria: string;
   languageAria: string;
   themeToLight: string;
   themeToDark: string;
@@ -108,6 +107,17 @@ export interface ProductsDict {
   inStock: string;
   outOfStock: string;
   soldBy: (name: string) => string;
+}
+
+export interface SearchDict {
+  ariaLabel: string;
+  placeholder: string;
+  productsHeading: string;
+  shopsHeading: string;
+  categoriesHeading: string;
+  noResults: string;
+  seeAllResults: (query: string) => string;
+  resultsFor: (query: string) => string;
 }
 
 export interface HomeDict {

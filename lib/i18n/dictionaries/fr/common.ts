@@ -7,4 +7,5 @@ export const common: CommonDict = {
   save: "Enregistrer",
   reset: "Réinitialiser",
   seeAll: "Voir tout",
+  loginLinkLabel: "Connectez-vous",
 };

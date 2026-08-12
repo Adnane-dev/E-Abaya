@@ -1,49 +1,41 @@
-// app/designers/page.tsx
+"use client";
+
+import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-const DesignersPage = () => {
+export default function DesignersPage() {
+  const { t } = useTranslation();
+  const designers = t.staticPages.designers;
+
   return (
-    <div className="bg-white">
-      <Navbar /> {/* Add the Navbar component */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-gray-900">Our Designers</h1>
-        <p className="mt-4 text-gray-600">
-          Meet the talented designers behind our exclusive collections. Our team
-          of skilled artisans and fashion experts work tirelessly to bring you
-          innovative and high-quality pieces that reflect the essence of modest
-          fashion.
-        </p>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <h1 className="font-serif text-3xl font-bold text-foreground">{designers.title}</h1>
+        <p className="mt-4 text-muted-foreground">{designers.intro}</p>
 
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Featured Designers
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-4">
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">Designer 1</h3>
-              <p className="text-gray-600">
-                Description of the designer s work and style.
-              </p>
-            </div>
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">Designer 2</h3>
-              <p className="text-gray-600">
-                Description of the designer s work and style.
-              </p>
-            </div>
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">Designer 3</h3>
-              <p className="text-gray-600">
-                Description of the designer s work and style.
-              </p>
-            </div>
+        <div className="mt-8 border border-border rounded-lg p-8 bg-card">
+          <h2 className="font-serif text-2xl font-semibold text-foreground">{designers.ctaTitle}</h2>
+          <p className="mt-4 text-muted-foreground">{designers.ctaBody}</p>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link
+              href="/products"
+              className="inline-block px-6 py-2 border border-border rounded-md text-foreground hover:border-accent hover:text-accent transition-colors"
+            >
+              {designers.browseShops}
+            </Link>
+            <Link
+              href="/vendeur"
+              className="inline-block px-6 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors"
+            >
+              {designers.becomeVendor}
+            </Link>
           </div>
         </div>
       </div>
-      <Footer /> {/* Add the Footer component */}
+      <Footer />
     </div>
   );
-};
-
-export default DesignersPage;
+}

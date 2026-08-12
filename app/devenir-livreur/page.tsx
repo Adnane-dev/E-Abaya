@@ -7,10 +7,12 @@ import { Truck, Clock, CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type State = "loading" | "guest" | "approved" | "pending" | "form";
 
 export default function BecomeCourierPage() {
+  const { t } = useTranslation();
   const [state, setState] = useState<State>("loading");
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,11 +57,11 @@ export default function BecomeCourierPage() {
     setIsSubmitting(false);
 
     if (error) {
-      toast.error("Erreur : " + error.message);
+      toast.error(t.account.becomeCourier.errorToast(error.message));
       return;
     }
 
-    toast.success("Candidature envoyée !");
+    toast.success(t.account.becomeCourier.successToast);
     setState("pending");
   }
 
@@ -70,17 +72,17 @@ export default function BecomeCourierPage() {
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
         <div className="flex items-center gap-2 mb-6">
           <Truck className="h-6 w-6 text-accent" />
-          <h1 className="font-serif text-2xl font-bold text-foreground">Devenir livreur</h1>
+          <h1 className="font-serif text-2xl font-bold text-foreground">{t.account.becomeCourier.title}</h1>
         </div>
 
-        {state === "loading" && <p className="text-muted-foreground">Chargement…</p>}
+        {state === "loading" && <p className="text-muted-foreground">{t.common.loading}</p>}
 
         {state === "guest" && (
           <p className="text-muted-foreground">
             <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
-              Connectez-vous ou créez un compte
+              {t.account.becomeCourier.guestLinkLabel}
             </Link>{" "}
-            pour postuler comme livreur.
+            {t.account.becomeCourier.guestSuffix}
           </p>
         )}
 
@@ -88,9 +90,9 @@ export default function BecomeCourierPage() {
           <div className="flex items-start gap-3 p-4 rounded-lg border border-primary/30 bg-primary/5 text-primary">
             <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">Vous êtes déjà livreur.</p>
+              <p className="font-medium">{t.account.becomeCourier.alreadyCourier}</p>
               <Link href="/livreur" className="text-sm underline">
-                Accéder à mon espace livreur →
+                {t.account.becomeCourier.goToDashboard}
               </Link>
             </div>
           </div>
@@ -99,22 +101,17 @@ export default function BecomeCourierPage() {
         {state === "pending" && (
           <div className="flex items-start gap-3 p-4 rounded-lg border border-accent/30 bg-accent/5 text-accent">
             <Clock className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <p>
-              Votre candidature est en cours d&apos;examen. Nous vous contacterons dès qu&apos;elle sera validée.
-            </p>
+            <p>{t.account.becomeCourier.pendingMessage}</p>
           </div>
         )}
 
         {state === "form" && (
           <div className="bg-card border border-border rounded-lg p-6">
-            <p className="text-muted-foreground mb-4">
-              Livrez les commandes de nos clients et gagnez un revenu complémentaire. Votre
-              candidature sera examinée par notre équipe avant activation.
-            </p>
+            <p className="text-muted-foreground mb-4">{t.account.becomeCourier.formIntro}</p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-foreground">
-                  Numéro de téléphone
+                  {t.account.becomeCourier.phoneLabel}
                 </label>
                 <input
                   id="phone"
@@ -130,7 +127,7 @@ export default function BecomeCourierPage() {
                 disabled={isSubmitting}
                 className="w-full py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
               >
-                {isSubmitting ? "Envoi…" : "Envoyer ma candidature"}
+                {isSubmitting ? t.account.becomeCourier.submitting : t.account.becomeCourier.submit}
               </button>
             </form>
           </div>

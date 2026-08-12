@@ -5,6 +5,7 @@ export interface CommonDict {
   save: string;
   reset: string;
   seeAll: string;
+  loginLinkLabel: string;
 }
 
 export interface NavDict {
@@ -118,6 +119,172 @@ export interface SearchDict {
   noResults: string;
   seeAllResults: (query: string) => string;
   resultsFor: (query: string) => string;
+}
+
+export interface StaticPagesDict {
+  about: {
+    title: string;
+    intro: string;
+    missionTitle: string;
+    missionBody: string;
+    storyTitle: string;
+    storyBody: string;
+    whyTitle: string;
+    whyItems: string[];
+  };
+  careers: {
+    title: string;
+    intro: string;
+    ctaTitle: string;
+    becomeVendor: string;
+    becomeVendorDesc: string;
+    becomeCourier: string;
+    becomeCourierDesc: string;
+    contactCta: string;
+    contactLinkLabel: string;
+  };
+  sustainability: {
+    title: string;
+    intro: string;
+    pointsTitle: string;
+    points: { title: string; body: string }[];
+  };
+  designers: {
+    title: string;
+    intro: string;
+    ctaTitle: string;
+    ctaBody: string;
+    browseShops: string;
+    becomeVendor: string;
+  };
+}
+
+export interface CheckoutDict {
+  pageTitle: string;
+  emptyCart: string;
+  discoverProducts: string;
+  decreaseQtyAria: string;
+  increaseQtyAria: string;
+  removeAria: string;
+  total: string;
+  loginPrompt: string;
+  fullName: string;
+  phone: string;
+  deliveryAddress: string;
+  paymentMethod: string;
+  cod: string;
+  mobileMoney: string;
+  transactionReference: string;
+  transactionReferencePlaceholder: string;
+  transactionReferenceNote: string;
+  submitting: string;
+  submit: string;
+  errors: {
+    emptyCart: string;
+    missingReference: string;
+    orderFailed: (message: string) => string;
+  };
+  successToast: string;
+}
+
+export interface AccountDict {
+  myOrders: {
+    title: string;
+    loginSuffix: string;
+    noOrders: string;
+    discoverProducts: string;
+    orderNumber: (id: number) => string;
+    itemsCount: (count: number) => string;
+  };
+  orderConfirmation: {
+    title: string;
+    orderNumber: string;
+    status: string;
+    paymentMethod: string;
+    delivery: string;
+    items: string;
+    total: string;
+    contactNote: (phone: string) => string;
+    paymentLabels: { cod: string; mobile_money: string };
+  };
+  myAccount: {
+    title: string;
+    loginSuffix: string;
+    changePhoto: string;
+    uploadingPhoto: string;
+    email: string;
+    fullName: string;
+    phone: string;
+    address: string;
+    save: string;
+    saving: string;
+    viewOrders: string;
+    avatarUpdated: string;
+    profileUpdated: string;
+    errors: {
+      avatarUpload: (message: string) => string;
+      profileSave: (message: string) => string;
+    };
+  };
+  wishlist: {
+    title: string;
+    loginSuffix: string;
+    empty: string;
+    discoverProducts: string;
+  };
+  becomeCourier: {
+    title: string;
+    guestLinkLabel: string;
+    guestSuffix: string;
+    alreadyCourier: string;
+    goToDashboard: string;
+    pendingMessage: string;
+    formIntro: string;
+    phoneLabel: string;
+    submit: string;
+    submitting: string;
+    successToast: string;
+    errorToast: (message: string) => string;
+  };
+}
+
+export interface AuthDict {
+  login: {
+    backHome: string;
+    title: string;
+    orEmail: string;
+    emailLabel: string;
+    passwordLabel: string;
+    submit: string;
+    submitting: string;
+    noAccount: string;
+    createAccount: string;
+    errorToast: (message: string) => string;
+    successToast: string;
+  };
+  register: {
+    backHome: string;
+    title: string;
+    orEmail: string;
+    fullNameLabel: string;
+    emailLabel: string;
+    passwordLabel: string;
+    confirmPasswordLabel: string;
+    addressLabel: string;
+    submit: string;
+    submitting: string;
+    alreadyAccount: string;
+    login: string;
+    successToast: string;
+    validation: {
+      fullNameRequired: string;
+      emailRequired: string;
+      emailInvalid: string;
+      passwordRequired: string;
+      passwordTooShort: string;
+      passwordMismatch: string;
+    };
+  };
 }
 
 export interface HomeDict {

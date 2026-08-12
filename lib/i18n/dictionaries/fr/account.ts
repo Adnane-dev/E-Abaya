@@ -1,0 +1,63 @@
+import { AccountDict } from "../types";
+
+export const account: AccountDict = {
+  myOrders: {
+    title: "Mes commandes",
+    loginSuffix: "pour voir vos commandes.",
+    noOrders: "Vous n'avez pas encore de commande.",
+    discoverProducts: "Découvrir nos produits →",
+    orderNumber: (id) => `Commande n° ${id}`,
+    itemsCount: (count) => `${count} article${count > 1 ? "s" : ""}`,
+  },
+  orderConfirmation: {
+    title: "Commande confirmée",
+    orderNumber: "Commande n°",
+    status: "Statut",
+    paymentMethod: "Mode de paiement",
+    delivery: "Livraison",
+    items: "Articles",
+    total: "Total",
+    contactNote: (phone) => `Nous vous contacterons au ${phone} pour confirmer la livraison.`,
+    paymentLabels: { cod: "Paiement à la livraison", mobile_money: "Mobile Money" },
+  },
+  myAccount: {
+    title: "Mon compte",
+    loginSuffix: "pour accéder à votre compte.",
+    changePhoto: "Changer la photo",
+    uploadingPhoto: "Envoi…",
+    email: "Adresse e-mail",
+    fullName: "Nom complet",
+    phone: "Téléphone",
+    address: "Adresse de livraison habituelle",
+    save: "Enregistrer",
+    saving: "Enregistrement…",
+    viewOrders: "Voir mes commandes →",
+    avatarUpdated: "Photo de profil mise à jour.",
+    profileUpdated: "Profil mis à jour.",
+    errors: {
+      avatarUpload: (message) => `Échec de l'envoi : ${message}`,
+      profileSave: (message) => `Erreur lors de l'enregistrement : ${message}`,
+    },
+  },
+  wishlist: {
+    title: "Mes favoris",
+    loginSuffix: "pour voir vos favoris.",
+    empty: "Vous n'avez pas encore de favoris.",
+    discoverProducts: "Découvrir nos produits →",
+  },
+  becomeCourier: {
+    title: "Devenir livreur",
+    guestLinkLabel: "Connectez-vous ou créez un compte",
+    guestSuffix: "pour postuler comme livreur.",
+    alreadyCourier: "Vous êtes déjà livreur.",
+    goToDashboard: "Accéder à mon espace livreur →",
+    pendingMessage: "Votre candidature est en cours d'examen. Nous vous contacterons dès qu'elle sera validée.",
+    formIntro:
+      "Livrez les commandes de nos clients et gagnez un revenu complémentaire. Votre candidature sera examinée par notre équipe avant activation.",
+    phoneLabel: "Numéro de téléphone",
+    submit: "Envoyer ma candidature",
+    submitting: "Envoi…",
+    successToast: "Candidature envoyée !",
+    errorToast: (message) => `Erreur : ${message}`,
+  },
+};

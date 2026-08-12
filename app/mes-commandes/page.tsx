@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
-import { STATUS_LABELS } from "@/lib/orderStatus";
+import { getStatusLabel } from "@/lib/orderStatus";
 import { markOrdersSeen } from "@/lib/orderNotifications";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface Order {
   id: number;
@@ -17,6 +18,7 @@ interface Order {
 }
 
 export default function MyOrdersPage() {
+  const { t, locale } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -73,22 +75,22 @@ export default function MyOrdersPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">Mes commandes</h1>
+        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">{t.account.myOrders.title}</h1>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Chargement…</p>
+          <p className="text-muted-foreground">{t.common.loading}</p>
         ) : !isLoggedIn ? (
           <p className="text-muted-foreground">
             <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
-              Connectez-vous
+              {t.common.loginLinkLabel}
             </Link>{" "}
-            pour voir vos commandes.
+            {t.account.myOrders.loginSuffix}
           </p>
         ) : orders.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">Vous n&apos;avez pas encore de commande.</p>
+            <p className="text-muted-foreground mb-4">{t.account.myOrders.noOrders}</p>
             <Link href="/products" className="text-accent hover:text-accent/80 font-medium">
-              Découvrir nos produits →
+              {t.account.myOrders.discoverProducts}
             </Link>
           </div>
         ) : (
@@ -101,10 +103,10 @@ export default function MyOrdersPage() {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-medium text-foreground">Commande n° {order.id}</p>
+                    <p className="font-medium text-foreground">{t.account.myOrders.orderNumber(order.id)}</p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(order.created_at).toLocaleDateString("fr-FR")} ·{" "}
-                      {order.items.reduce((sum, i) => sum + i.quantity, 0)} article(s)
+                      {t.account.myOrders.itemsCount(order.items.reduce((sum, i) => sum + i.quantity, 0))}
                     </p>
                   </div>
                   <div className="text-right">
@@ -112,7 +114,7 @@ export default function MyOrdersPage() {
                       {Number(order.total).toLocaleString("fr-FR")} CFA
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {STATUS_LABELS[order.status] ?? order.status}
+                      {getStatusLabel(order.status, locale)}
                     </p>
                   </div>
                 </div>

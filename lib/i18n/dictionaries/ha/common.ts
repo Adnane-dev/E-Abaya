@@ -7,4 +7,5 @@ export const common: CommonDict = {
   save: "Ajiye",
   reset: "Sake saiti",
   seeAll: "Duba duka",
+  loginLinkLabel: "Shiga",
 };

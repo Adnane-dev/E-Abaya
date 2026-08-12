@@ -8,8 +8,10 @@ import { Footer } from "@/components/layout/Footer";
 import { WishlistButton } from "@/components/products/WishlistButton";
 import { createClient } from "@/lib/supabase";
 import { Product, getDiscountedPrice } from "@/types/product";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function WishlistPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -42,22 +44,22 @@ export default function WishlistPage() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">Mes favoris</h1>
+        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">{t.account.wishlist.title}</h1>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Chargement…</p>
+          <p className="text-muted-foreground">{t.common.loading}</p>
         ) : !isLoggedIn ? (
           <p className="text-muted-foreground">
             <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
-              Connectez-vous
+              {t.common.loginLinkLabel}
             </Link>{" "}
-            pour voir vos favoris.
+            {t.account.wishlist.loginSuffix}
           </p>
         ) : products.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">Vous n&apos;avez pas encore de favoris.</p>
+            <p className="text-muted-foreground mb-4">{t.account.wishlist.empty}</p>
             <Link href="/products" className="text-accent hover:text-accent/80 font-medium">
-              Découvrir nos produits →
+              {t.account.wishlist.discoverProducts}
             </Link>
           </div>
         ) : (

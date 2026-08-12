@@ -1,0 +1,63 @@
+import { AccountDict } from "../types";
+
+export const account: AccountDict = {
+  myOrders: {
+    title: "طلباتي",
+    loginSuffix: "لعرض طلباتك.",
+    noOrders: "لا توجد طلبات لديك حتى الآن.",
+    discoverProducts: "اكتشفي منتجاتنا ←",
+    orderNumber: (id) => `الطلب رقم ${id}`,
+    itemsCount: (count) => `${count} قطعة`,
+  },
+  orderConfirmation: {
+    title: "تم تأكيد الطلب",
+    orderNumber: "رقم الطلب",
+    status: "الحالة",
+    paymentMethod: "طريقة الدفع",
+    delivery: "التوصيل",
+    items: "القطع",
+    total: "الإجمالي",
+    contactNote: (phone) => `سنتصل بك على ${phone} لتأكيد التوصيل.`,
+    paymentLabels: { cod: "الدفع عند التوصيل", mobile_money: "Mobile Money" },
+  },
+  myAccount: {
+    title: "حسابي",
+    loginSuffix: "للوصول إلى حسابك.",
+    changePhoto: "تغيير الصورة",
+    uploadingPhoto: "جارٍ الإرسال…",
+    email: "البريد الإلكتروني",
+    fullName: "الاسم الكامل",
+    phone: "الهاتف",
+    address: "عنوان التوصيل المعتاد",
+    save: "حفظ",
+    saving: "جارٍ الحفظ…",
+    viewOrders: "عرض طلباتي ←",
+    avatarUpdated: "تم تحديث صورة الملف الشخصي.",
+    profileUpdated: "تم تحديث الملف الشخصي.",
+    errors: {
+      avatarUpload: (message) => `فشل الإرسال: ${message}`,
+      profileSave: (message) => `خطأ في الحفظ: ${message}`,
+    },
+  },
+  wishlist: {
+    title: "مفضلاتي",
+    loginSuffix: "لعرض مفضلاتك.",
+    empty: "لا توجد عناصر في مفضلاتك حتى الآن.",
+    discoverProducts: "اكتشفي منتجاتنا ←",
+  },
+  becomeCourier: {
+    title: "كن عامل توصيل",
+    guestLinkLabel: "سجّلي الدخول أو أنشئي حسابًا",
+    guestSuffix: "للتقديم كعامل توصيل.",
+    alreadyCourier: "أنتِ عامل توصيل بالفعل.",
+    goToDashboard: "الذهاب إلى لوحة تحكم التوصيل ←",
+    pendingMessage: "طلبك قيد المراجعة. سنتصل بك بعد الموافقة عليه.",
+    formIntro:
+      "وصّل طلبات عملائنا واكسب دخلاً إضافيًا. سيراجع فريقنا طلبك قبل التفعيل.",
+    phoneLabel: "رقم الهاتف",
+    submit: "إرسال طلبي",
+    submitting: "جارٍ الإرسال…",
+    successToast: "تم إرسال طلبك!",
+    errorToast: (message) => `خطأ: ${message}`,
+  },
+};

@@ -7,4 +7,5 @@ export const common: CommonDict = {
   save: "حفظ",
   reset: "إعادة التعيين",
   seeAll: "عرض الكل",
+  loginLinkLabel: "سجّلي الدخول",
 };

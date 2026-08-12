@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -26,15 +28,14 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    const v = t.auth.register.validation;
 
-    if (!formData.fullName) newErrors.fullName = "Le nom complet est requis";
-    if (!formData.email) newErrors.email = "L'e-mail est requis";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "E-mail invalide";
-    if (!formData.password) newErrors.password = "Le mot de passe est requis";
-    else if (formData.password.length < 6)
-      newErrors.password = "Le mot de passe doit contenir au moins 6 caractères";
-    if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Les mots de passe ne correspondent pas";
+    if (!formData.fullName) newErrors.fullName = v.fullNameRequired;
+    if (!formData.email) newErrors.email = v.emailRequired;
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = v.emailInvalid;
+    if (!formData.password) newErrors.password = v.passwordRequired;
+    else if (formData.password.length < 6) newErrors.password = v.passwordTooShort;
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = v.passwordMismatch;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -64,7 +65,7 @@ export default function RegisterPage() {
         .eq("id", data.user.id);
     }
 
-    toast.success("Compte créé ! Vous pouvez maintenant vous connecter.");
+    toast.success(t.auth.register.successToast);
     setIsSubmitting(false);
     router.push("/auth/login");
   };
@@ -74,9 +75,9 @@ export default function RegisterPage() {
       <div className="max-w-md w-full p-6 bg-card shadow-lg rounded-md border border-border">
         <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors text-sm mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Retour à l&apos;accueil
+          {t.auth.register.backHome}
         </Link>
-        <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Créer un compte</h2>
+        <h2 className="font-serif text-2xl font-bold text-foreground mb-4">{t.auth.register.title}</h2>
 
         <GoogleButton />
 
@@ -85,14 +86,14 @@ export default function RegisterPage() {
             <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-card text-muted-foreground">ou avec votre e-mail</span>
+            <span className="px-2 bg-card text-muted-foreground">{t.auth.register.orEmail}</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
-              Nom complet
+              {t.auth.register.fullNameLabel}
             </label>
             <input
               type="text"
@@ -108,7 +109,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              E-mail
+              {t.auth.register.emailLabel}
             </label>
             <input
               type="email"
@@ -124,7 +125,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Mot de passe
+              {t.auth.register.passwordLabel}
             </label>
             <input
               type="password"
@@ -140,7 +141,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
-              Confirmer le mot de passe
+              {t.auth.register.confirmPasswordLabel}
             </label>
             <input
               type="password"
@@ -158,7 +159,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="address" className="block text-sm font-medium text-foreground">
-              Adresse de livraison
+              {t.auth.register.addressLabel}
             </label>
             <textarea
               id="address"
@@ -174,14 +175,14 @@ export default function RegisterPage() {
             disabled={isSubmitting}
             className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-60"
           >
-            {isSubmitting ? "Création…" : "S'inscrire"}
+            {isSubmitting ? t.auth.register.submitting : t.auth.register.submit}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Déjà un compte ?{" "}
+          {t.auth.register.alreadyAccount}{" "}
           <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
-            Se connecter
+            {t.auth.register.login}
           </Link>
         </p>
       </div>

@@ -1,0 +1,63 @@
+import { AccountDict } from "../types";
+
+export const account: AccountDict = {
+  myOrders: {
+    title: "My orders",
+    loginSuffix: "to see your orders.",
+    noOrders: "You don't have any orders yet.",
+    discoverProducts: "Discover our products →",
+    orderNumber: (id) => `Order #${id}`,
+    itemsCount: (count) => `${count} item${count > 1 ? "s" : ""}`,
+  },
+  orderConfirmation: {
+    title: "Order confirmed",
+    orderNumber: "Order #",
+    status: "Status",
+    paymentMethod: "Payment method",
+    delivery: "Delivery",
+    items: "Items",
+    total: "Total",
+    contactNote: (phone) => `We'll contact you at ${phone} to confirm delivery.`,
+    paymentLabels: { cod: "Cash on delivery", mobile_money: "Mobile Money" },
+  },
+  myAccount: {
+    title: "My account",
+    loginSuffix: "to access your account.",
+    changePhoto: "Change photo",
+    uploadingPhoto: "Uploading…",
+    email: "Email address",
+    fullName: "Full name",
+    phone: "Phone",
+    address: "Usual delivery address",
+    save: "Save",
+    saving: "Saving…",
+    viewOrders: "View my orders →",
+    avatarUpdated: "Profile photo updated.",
+    profileUpdated: "Profile updated.",
+    errors: {
+      avatarUpload: (message) => `Upload failed: ${message}`,
+      profileSave: (message) => `Error while saving: ${message}`,
+    },
+  },
+  wishlist: {
+    title: "My wishlist",
+    loginSuffix: "to see your wishlist.",
+    empty: "You don't have any wishlist items yet.",
+    discoverProducts: "Discover our products →",
+  },
+  becomeCourier: {
+    title: "Become a courier",
+    guestLinkLabel: "Sign in or create an account",
+    guestSuffix: "to apply as a courier.",
+    alreadyCourier: "You're already a courier.",
+    goToDashboard: "Go to my courier dashboard →",
+    pendingMessage: "Your application is under review. We'll contact you once it's approved.",
+    formIntro:
+      "Deliver our customers' orders and earn extra income. Your application will be reviewed by our team before activation.",
+    phoneLabel: "Phone number",
+    submit: "Submit my application",
+    submitting: "Sending…",
+    successToast: "Application sent!",
+    errorToast: (message) => `Error: ${message}`,
+  },
+};

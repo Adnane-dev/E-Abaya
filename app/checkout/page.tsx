@@ -10,10 +10,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
 import { CartItem, getCart, getCartTotal, updateQuantity, removeFromCart, clearCart, onCartUpdate } from "@/lib/cart";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type PaymentMethod = "cod" | "mobile_money";
 
 export default function CheckoutPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -47,11 +49,11 @@ export default function CheckoutPage() {
     event.preventDefault();
 
     if (cart.length === 0) {
-      toast.error("Votre panier est vide.");
+      toast.error(t.checkout.errors.emptyCart);
       return;
     }
     if (paymentMethod === "mobile_money" && !paymentReference.trim()) {
-      toast.error("Merci d'indiquer la référence de votre paiement Mobile Money.");
+      toast.error(t.checkout.errors.missingReference);
       return;
     }
 
@@ -81,7 +83,7 @@ export default function CheckoutPage() {
 
     if (error || !order) {
       setIsSubmitting(false);
-      toast.error("Erreur lors de la commande : " + (error?.message ?? "inconnue"));
+      toast.error(t.checkout.errors.orderFailed(error?.message ?? "inconnue"));
       return;
     }
 
@@ -95,7 +97,7 @@ export default function CheckoutPage() {
 
     setIsSubmitting(false);
     clearCart();
-    toast.success("Commande passée avec succès !");
+    toast.success(t.checkout.successToast);
     router.push(`/commande/${order.id}`);
   }
 
@@ -104,13 +106,13 @@ export default function CheckoutPage() {
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">Votre panier</h1>
+        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">{t.checkout.pageTitle}</h1>
 
         {cart.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground mb-4">Votre panier est vide.</p>
+            <p className="text-muted-foreground mb-4">{t.checkout.emptyCart}</p>
             <Link href="/products" className="text-accent hover:text-accent/80 font-medium">
-              Découvrir nos produits →
+              {t.checkout.discoverProducts}
             </Link>
           </div>
         ) : (
@@ -130,7 +132,7 @@ export default function CheckoutPage() {
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       className="p-1.5 border border-border rounded-md hover:bg-muted"
-                      aria-label="Diminuer la quantité"
+                      aria-label={t.checkout.decreaseQtyAria}
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -138,7 +140,7 @@ export default function CheckoutPage() {
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       className="p-1.5 border border-border rounded-md hover:bg-muted"
-                      aria-label="Augmenter la quantité"
+                      aria-label={t.checkout.increaseQtyAria}
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -146,7 +148,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="p-2 text-destructive hover:bg-destructive/10 rounded-md"
-                    aria-label="Retirer du panier"
+                    aria-label={t.checkout.removeAria}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -157,27 +159,27 @@ export default function CheckoutPage() {
             {/* Checkout form */}
             <div className="bg-card border border-border rounded-lg p-6 h-fit">
               <div className="flex justify-between text-lg font-semibold text-foreground mb-6">
-                <span>Total</span>
+                <span>{t.checkout.total}</span>
                 <span className="text-accent">{total.toLocaleString("fr-FR")} CFA</span>
               </div>
 
               {isCheckingAuth ? (
-                <p className="text-muted-foreground text-sm">Chargement…</p>
+                <p className="text-muted-foreground text-sm">{t.common.loading}</p>
               ) : !isLoggedIn ? (
                 <div className="text-sm text-muted-foreground">
-                  <p className="mb-3">Connectez-vous pour finaliser votre commande.</p>
+                  <p className="mb-3">{t.checkout.loginPrompt}</p>
                   <Link
                     href="/auth/login"
                     className="block text-center w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
                   >
-                    Se connecter
+                    {t.nav.login}
                   </Link>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label htmlFor="customerName" className="block text-sm font-medium text-foreground">
-                      Nom complet
+                      {t.checkout.fullName}
                     </label>
                     <input
                       id="customerName"
@@ -191,7 +193,7 @@ export default function CheckoutPage() {
 
                   <div>
                     <label htmlFor="customerPhone" className="block text-sm font-medium text-foreground">
-                      Téléphone
+                      {t.checkout.phone}
                     </label>
                     <input
                       id="customerPhone"
@@ -205,7 +207,7 @@ export default function CheckoutPage() {
 
                   <div>
                     <label htmlFor="deliveryAddress" className="block text-sm font-medium text-foreground">
-                      Adresse de livraison
+                      {t.checkout.deliveryAddress}
                     </label>
                     <textarea
                       id="deliveryAddress"
@@ -218,7 +220,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Mode de paiement</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">{t.checkout.paymentMethod}</label>
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-sm text-foreground">
                         <input
@@ -227,7 +229,7 @@ export default function CheckoutPage() {
                           checked={paymentMethod === "cod"}
                           onChange={() => setPaymentMethod("cod")}
                         />
-                        Paiement à la livraison
+                        {t.checkout.cod}
                       </label>
                       <label className="flex items-center gap-2 text-sm text-foreground">
                         <input
@@ -236,7 +238,7 @@ export default function CheckoutPage() {
                           checked={paymentMethod === "mobile_money"}
                           onChange={() => setPaymentMethod("mobile_money")}
                         />
-                        Mobile Money (Orange Money / Moov Money)
+                        {t.checkout.mobileMoney}
                       </label>
                     </div>
                   </div>
@@ -244,19 +246,19 @@ export default function CheckoutPage() {
                   {paymentMethod === "mobile_money" && (
                     <div>
                       <label htmlFor="paymentReference" className="block text-sm font-medium text-foreground">
-                        Référence de la transaction
+                        {t.checkout.transactionReference}
                       </label>
                       <input
                         id="paymentReference"
                         type="text"
                         required
-                        placeholder="Ex : identifiant reçu par SMS"
+                        placeholder={t.checkout.transactionReferencePlaceholder}
                         value={paymentReference}
                         onChange={(e) => setPaymentReference(e.target.value)}
                         className="mt-1 w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-accent"
                       />
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Après vérification manuelle de votre paiement, votre commande sera confirmée.
+                        {t.checkout.transactionReferenceNote}
                       </p>
                     </div>
                   )}
@@ -266,7 +268,7 @@ export default function CheckoutPage() {
                     disabled={isSubmitting}
                     className="w-full py-2.5 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
                   >
-                    {isSubmitting ? "Envoi…" : "Passer la commande"}
+                    {isSubmitting ? t.checkout.submitting : t.checkout.submit}
                   </button>
                 </form>
               )}

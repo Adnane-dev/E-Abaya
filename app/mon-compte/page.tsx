@@ -7,8 +7,10 @@ import { Upload, User as UserIcon } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function MyAccountPage() {
+  const { t } = useTranslation();
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -56,7 +58,7 @@ export default function MyAccountPage() {
     const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file);
 
     if (uploadError) {
-      toast.error("Échec de l'envoi : " + uploadError.message);
+      toast.error(t.account.myAccount.errors.avatarUpload(uploadError.message));
       setIsUploadingAvatar(false);
       return;
     }
@@ -67,11 +69,11 @@ export default function MyAccountPage() {
     setIsUploadingAvatar(false);
 
     if (error) {
-      toast.error("Erreur : " + error.message);
+      toast.error(t.account.myAccount.errors.profileSave(error.message));
       return;
     }
     setAvatarUrl(data.publicUrl);
-    toast.success("Photo de profil mise à jour.");
+    toast.success(t.account.myAccount.avatarUpdated);
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -90,10 +92,10 @@ export default function MyAccountPage() {
     setIsSaving(false);
 
     if (error) {
-      toast.error("Erreur lors de l'enregistrement : " + error.message);
+      toast.error(t.account.myAccount.errors.profileSave(error.message));
       return;
     }
-    toast.success("Profil mis à jour.");
+    toast.success(t.account.myAccount.profileUpdated);
   }
 
   return (
@@ -101,16 +103,16 @@ export default function MyAccountPage() {
       <Navbar />
 
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">Mon compte</h1>
+        <h1 className="font-serif text-3xl font-bold text-foreground mb-8">{t.account.myAccount.title}</h1>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Chargement…</p>
+          <p className="text-muted-foreground">{t.common.loading}</p>
         ) : !isLoggedIn ? (
           <p className="text-muted-foreground">
             <Link href="/auth/login" className="text-accent hover:text-accent/80 font-medium">
-              Connectez-vous
+              {t.common.loginLinkLabel}
             </Link>{" "}
-            pour accéder à votre compte.
+            {t.account.myAccount.loginSuffix}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 bg-card border border-border rounded-lg p-6">
@@ -124,7 +126,7 @@ export default function MyAccountPage() {
               </div>
               <label className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted">
                 <Upload className="h-4 w-4" />
-                {isUploadingAvatar ? "Envoi…" : "Changer la photo"}
+                {isUploadingAvatar ? t.account.myAccount.uploadingPhoto : t.account.myAccount.changePhoto}
                 <input
                   type="file"
                   accept="image/*"
@@ -135,7 +137,7 @@ export default function MyAccountPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground">Adresse e-mail</label>
+              <label className="block text-sm font-medium text-foreground">{t.account.myAccount.email}</label>
               <input
                 type="email"
                 value={email}
@@ -146,7 +148,7 @@ export default function MyAccountPage() {
 
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
-                Nom complet
+                {t.account.myAccount.fullName}
               </label>
               <input
                 id="fullName"
@@ -159,7 +161,7 @@ export default function MyAccountPage() {
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-foreground">
-                Téléphone
+                {t.account.myAccount.phone}
               </label>
               <input
                 id="phone"
@@ -172,7 +174,7 @@ export default function MyAccountPage() {
 
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-foreground">
-                Adresse de livraison habituelle
+                {t.account.myAccount.address}
               </label>
               <textarea
                 id="address"
@@ -188,12 +190,12 @@ export default function MyAccountPage() {
               disabled={isSaving}
               className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
             >
-              {isSaving ? "Enregistrement…" : "Enregistrer"}
+              {isSaving ? t.account.myAccount.saving : t.account.myAccount.save}
             </button>
 
             <div className="pt-4 border-t border-border">
               <Link href="/mes-commandes" className="text-accent hover:text-accent/80 font-medium text-sm">
-                Voir mes commandes →
+                {t.account.myAccount.viewOrders}
               </Link>
             </div>
           </form>

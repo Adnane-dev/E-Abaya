@@ -1,0 +1,40 @@
+import { AuthDict } from "../types";
+
+export const auth: AuthDict = {
+  login: {
+    backHome: "Back to home",
+    title: "Sign in",
+    orEmail: "or with your email",
+    emailLabel: "Email address",
+    passwordLabel: "Password",
+    submit: "Sign in",
+    submitting: "Signing in…",
+    noAccount: "Don't have an account yet?",
+    createAccount: "Create an account",
+    errorToast: (message) => `Unable to sign in: ${message}`,
+    successToast: "Signed in successfully!",
+  },
+  register: {
+    backHome: "Back to home",
+    title: "Create an account",
+    orEmail: "or with your email",
+    fullNameLabel: "Full name",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    confirmPasswordLabel: "Confirm password",
+    addressLabel: "Delivery address",
+    submit: "Sign up",
+    submitting: "Creating…",
+    alreadyAccount: "Already have an account?",
+    login: "Sign in",
+    successToast: "Account created! You can now sign in.",
+    validation: {
+      fullNameRequired: "Full name is required",
+      emailRequired: "Email is required",
+      emailInvalid: "Invalid email",
+      passwordRequired: "Password is required",
+      passwordTooShort: "Password must be at least 6 characters",
+      passwordMismatch: "Passwords do not match",
+    },
+  },
+};

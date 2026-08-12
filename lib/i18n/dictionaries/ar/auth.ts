@@ -1,0 +1,40 @@
+import { AuthDict } from "../types";
+
+export const auth: AuthDict = {
+  login: {
+    backHome: "العودة إلى الرئيسية",
+    title: "تسجيل الدخول",
+    orEmail: "أو ببريدك الإلكتروني",
+    emailLabel: "البريد الإلكتروني",
+    passwordLabel: "كلمة المرور",
+    submit: "تسجيل الدخول",
+    submitting: "جارٍ تسجيل الدخول…",
+    noAccount: "ليس لديك حساب بعد؟",
+    createAccount: "إنشاء حساب",
+    errorToast: (message) => `تعذّر تسجيل الدخول: ${message}`,
+    successToast: "تم تسجيل الدخول بنجاح!",
+  },
+  register: {
+    backHome: "العودة إلى الرئيسية",
+    title: "إنشاء حساب",
+    orEmail: "أو ببريدك الإلكتروني",
+    fullNameLabel: "الاسم الكامل",
+    emailLabel: "البريد الإلكتروني",
+    passwordLabel: "كلمة المرور",
+    confirmPasswordLabel: "تأكيد كلمة المرور",
+    addressLabel: "عنوان التوصيل",
+    submit: "إنشاء حساب",
+    submitting: "جارٍ الإنشاء…",
+    alreadyAccount: "لديك حساب بالفعل؟",
+    login: "تسجيل الدخول",
+    successToast: "تم إنشاء الحساب! يمكنك الآن تسجيل الدخول.",
+    validation: {
+      fullNameRequired: "الاسم الكامل مطلوب",
+      emailRequired: "البريد الإلكتروني مطلوب",
+      emailInvalid: "بريد إلكتروني غير صالح",
+      passwordRequired: "كلمة المرور مطلوبة",
+      passwordTooShort: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+      passwordMismatch: "كلمتا المرور غير متطابقتين",
+    },
+  },
+};

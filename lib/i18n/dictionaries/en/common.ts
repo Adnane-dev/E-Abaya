@@ -7,4 +7,5 @@ export const common: CommonDict = {
   save: "Save",
   reset: "Reset",
   seeAll: "See all",
+  loginLinkLabel: "Sign in",
 };

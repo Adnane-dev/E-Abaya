@@ -1,0 +1,40 @@
+import { AuthDict } from "../types";
+
+export const auth: AuthDict = {
+  login: {
+    backHome: "Koma gida",
+    title: "Shiga",
+    orEmail: "ko da imel naki",
+    emailLabel: "Adireshin imel",
+    passwordLabel: "Kalmar sirri",
+    submit: "Shiga",
+    submitting: "Ana shiga…",
+    noAccount: "Baki da asusu tukuna?",
+    createAccount: "Kirkiro asusu",
+    errorToast: (message) => `Ba za a iya shiga: ${message}`,
+    successToast: "Kin shiga cikin nasara!",
+  },
+  register: {
+    backHome: "Koma gida",
+    title: "Kirkiro asusu",
+    orEmail: "ko da imel naki",
+    fullNameLabel: "Cikakken suna",
+    emailLabel: "Imel",
+    passwordLabel: "Kalmar sirri",
+    confirmPasswordLabel: "Tabbatar da kalmar sirri",
+    addressLabel: "Adireshin isar da kaya",
+    submit: "Yi rijista",
+    submitting: "Ana kirkirowa…",
+    alreadyAccount: "Kina da asusu tuni?",
+    login: "Shiga",
+    successToast: "An kirkiri asusu! Yanzu za ki iya shiga.",
+    validation: {
+      fullNameRequired: "Cikakken suna ana bukata",
+      emailRequired: "Imel ana bukata",
+      emailInvalid: "Imel mara inganci",
+      passwordRequired: "Kalmar sirri ana bukata",
+      passwordTooShort: "Kalmar sirri dole ta kai haruffa 6 akalla",
+      passwordMismatch: "Kalmomin sirri ba su dace ba",
+    },
+  },
+};

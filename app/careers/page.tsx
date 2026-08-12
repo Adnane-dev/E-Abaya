@@ -1,85 +1,49 @@
+"use client";
+
+import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import Link from "next/link"; // Ensure Link is imported
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
-const CareersPage = () => {
+export default function CareersPage() {
+  const { t } = useTranslation();
+  const careers = t.staticPages.careers;
+
   return (
-    <div className="bg-white">
-      <Navbar /> {/* Add the Navbar component */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Careers at Islamic Fashion
-        </h1>
-        <p className="mt-4 text-gray-600">
-          Join our team and help us revolutionize the fashion industry! At
-          Islamic Fashion, we are passionate about creating beautiful and
-          sustainable clothing that empowers individuals to express their unique
-          style. We are always looking for talented and driven individuals who
-          share our values and vision.
-        </p>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <h1 className="font-serif text-3xl font-bold text-foreground">{careers.title}</h1>
+        <p className="mt-4 text-muted-foreground">{careers.intro}</p>
 
         <div className="mt-8">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Open Positions
-          </h2>
-          <div className="space-y-6 mt-4">
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">
-                Fashion Designer
-              </h3>
-              <p className="text-gray-600">
-                We are looking for a creative and passionate Fashion Designer to
-                join our team. You will be responsible for designing unique and
-                sustainable clothing collections that reflect our brand s values
-                and aesthetics.
-              </p>
-              <Link
-                href="/careers/fashion-designer"
-                className="text-primary mt-2 inline-block"
-              >
-                Learn More
+          <h2 className="font-serif text-2xl font-semibold text-foreground">{careers.ctaTitle}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+            <div className="border border-border rounded-lg p-6">
+              <h3 className="text-lg font-bold text-foreground">{careers.becomeVendor}</h3>
+              <p className="mt-2 text-muted-foreground">{careers.becomeVendorDesc}</p>
+              <Link href="/vendeur" className="mt-4 inline-block text-accent hover:text-accent/80 font-medium">
+                {careers.becomeVendor} →
               </Link>
             </div>
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">
-                Marketing Manager
-              </h3>
-              <p className="text-gray-600">
-                As a Marketing Manager, you will develop and implement strategic
-                marketing campaigns to promote our brand and products. You
-                should have experience in digital marketing and a strong
-                understanding of consumer behavior.
-              </p>
-              <Link
-                href="/careers/marketing-manager"
-                className="text-primary mt-2 inline-block"
-              >
-                Learn More
-              </Link>
-            </div>
-            <div className="border p-4 rounded-lg">
-              <h3 className="text-lg font-bold text-gray-800">
-                Customer Support Specialist
-              </h3>
-              <p className="text-gray-600">
-                Join our customer support team to assist customers with their
-                inquiries, product information, and order issues. You will be
-                the face of our brand and ensure that every customer has an
-                excellent experience with us.
-              </p>
-              <Link
-                href="/careers/customer-support"
-                className="text-primary mt-2 inline-block"
-              >
-                Learn More
+            <div className="border border-border rounded-lg p-6">
+              <h3 className="text-lg font-bold text-foreground">{careers.becomeCourier}</h3>
+              <p className="mt-2 text-muted-foreground">{careers.becomeCourierDesc}</p>
+              <Link href="/devenir-livreur" className="mt-4 inline-block text-accent hover:text-accent/80 font-medium">
+                {careers.becomeCourier} →
               </Link>
             </div>
           </div>
         </div>
+
+        <p className="mt-8 text-muted-foreground">
+          {careers.contactCta}{" "}
+          <Link href="/contact" className="text-accent hover:text-accent/80 font-medium">
+            {careers.contactLinkLabel}
+          </Link>
+        </p>
       </div>
-      <Footer /> {/* Add the Footer component */}
+      <Footer />
     </div>
   );
-};
-
-export default CareersPage;
+}

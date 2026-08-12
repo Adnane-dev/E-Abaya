@@ -1,0 +1,40 @@
+import { AuthDict } from "../types";
+
+export const auth: AuthDict = {
+  login: {
+    backHome: "Retour à l'accueil",
+    title: "Connexion",
+    orEmail: "ou avec votre e-mail",
+    emailLabel: "Adresse e-mail",
+    passwordLabel: "Mot de passe",
+    submit: "Se connecter",
+    submitting: "Connexion…",
+    noAccount: "Pas encore de compte ?",
+    createAccount: "Créer un compte",
+    errorToast: (message) => `Connexion impossible : ${message}`,
+    successToast: "Connexion réussie !",
+  },
+  register: {
+    backHome: "Retour à l'accueil",
+    title: "Créer un compte",
+    orEmail: "ou avec votre e-mail",
+    fullNameLabel: "Nom complet",
+    emailLabel: "E-mail",
+    passwordLabel: "Mot de passe",
+    confirmPasswordLabel: "Confirmer le mot de passe",
+    addressLabel: "Adresse de livraison",
+    submit: "S'inscrire",
+    submitting: "Création…",
+    alreadyAccount: "Déjà un compte ?",
+    login: "Se connecter",
+    successToast: "Compte créé ! Vous pouvez maintenant vous connecter.",
+    validation: {
+      fullNameRequired: "Le nom complet est requis",
+      emailRequired: "L'e-mail est requis",
+      emailInvalid: "E-mail invalide",
+      passwordRequired: "Le mot de passe est requis",
+      passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères",
+      passwordMismatch: "Les mots de passe ne correspondent pas",
+    },
+  },
+};

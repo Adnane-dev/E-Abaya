@@ -1,0 +1,63 @@
+import { AccountDict } from "../types";
+
+export const account: AccountDict = {
+  myOrders: {
+    title: "Ododina",
+    loginSuffix: "don ganin ododinki.",
+    noOrders: "Baki yi oda ba tukuna.",
+    discoverProducts: "Bincika kayayyakinmu →",
+    orderNumber: (id) => `Oda lamba ${id}`,
+    itemsCount: (count) => `Kaya ${count}`,
+  },
+  orderConfirmation: {
+    title: "An tabbatar da oda",
+    orderNumber: "Oda lamba",
+    status: "Matsayi",
+    paymentMethod: "Hanyar biya",
+    delivery: "Isar da kaya",
+    items: "Kayayyaki",
+    total: "Jumla",
+    contactNote: (phone) => `Za mu tuntube ki a ${phone} domin tabbatar da isar da kaya.`,
+    paymentLabels: { cod: "Biya lokacin isar da kaya", mobile_money: "Mobile Money" },
+  },
+  myAccount: {
+    title: "Asusuna",
+    loginSuffix: "domin shiga asusunki.",
+    changePhoto: "Canza hoto",
+    uploadingPhoto: "Ana turawa…",
+    email: "Adireshin imel",
+    fullName: "Cikakken suna",
+    phone: "Waya",
+    address: "Adireshin isar da kaya na yau da kullum",
+    save: "Ajiye",
+    saving: "Ana ajiyewa…",
+    viewOrders: "Duba ododina →",
+    avatarUpdated: "An sabunta hoton bayanan martaba.",
+    profileUpdated: "An sabunta bayanan martaba.",
+    errors: {
+      avatarUpload: (message) => `An kasa aikawa: ${message}`,
+      profileSave: (message) => `Kuskure wajen ajiyewa: ${message}`,
+    },
+  },
+  wishlist: {
+    title: "Abubuwan da nake so",
+    loginSuffix: "domin ganin abubuwan da kike so.",
+    empty: "Babu abin da kike so a jera tukuna.",
+    discoverProducts: "Bincika kayayyakinmu →",
+  },
+  becomeCourier: {
+    title: "Zama mai kaiwa",
+    guestLinkLabel: "Shiga ko kirkiro asusu",
+    guestSuffix: "domin nema zama mai kaiwa.",
+    alreadyCourier: "Kin riga kin zama mai kaiwa.",
+    goToDashboard: "Je zuwa dashboard na mai kaiwa →",
+    pendingMessage: "Ana nazarin nemanki. Za mu tuntube ki nan da nan a tabbatar.",
+    formIntro:
+      "Kai wa abokan cinikinmu kayansu kuma ki samu karin kudi. Kungiyarmu za ta nazarci nemanki kafin fara aiki.",
+    phoneLabel: "Lambar waya",
+    submit: "Tura nemana",
+    submitting: "Ana turawa…",
+    successToast: "An tura nemanki!",
+    errorToast: (message) => `Kuskure: ${message}`,
+  },
+};
